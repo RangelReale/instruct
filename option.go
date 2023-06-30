@@ -22,8 +22,8 @@ type DecodeOptions[IT any, DC DecodeContext] struct {
 	UseDecodeMapTagsAsDefault bool    // internal flag to allow Decode functions without an instance to set MapTags as a default one.
 }
 
-// DefaultDefaultOptions returns a DefaultOptions with the default values.
-func DefaultDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
+// NewDefaultOptions returns a DefaultOptions with the default values.
+func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 	return DefaultOptions[IT, DC]{
 		TagName:            "instruct",
 		DefaultRequired:    true,
@@ -35,8 +35,8 @@ func DefaultDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 	}
 }
 
-// DefaultDecodeOptions returns a DecodeOptions with the default values.
-func DefaultDecodeOptions[IT any, DC DecodeContext]() DecodeOptions[IT, DC] {
+// NewDecodeOptions returns a DecodeOptions with the default values.
+func NewDecodeOptions[IT any, DC DecodeContext]() DecodeOptions[IT, DC] {
 	return DecodeOptions[IT, DC]{}
 }
 

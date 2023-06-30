@@ -15,7 +15,7 @@ import (
 )
 
 func GetTestDecoderOptions() DefaultOptions[*http.Request, TestDecodeContext] {
-	optns := DefaultDefaultOptions[*http.Request, TestDecodeContext]()
+	optns := NewDefaultOptions[*http.Request, TestDecodeContext]()
 	optns.DecodeOperations[TestOperationQuery] = &TestDecodeOperationQuery{}
 	optns.DecodeOperations[TestOperationHeader] = &TestDecodeOperationHeader{}
 	optns.DecodeOperations[TestOperationBody] = &TestDecodeOperationBody{}
@@ -29,7 +29,7 @@ func GetTestDecoderDecodeOptions(ctx TestDecodeContext) DecodeOptions[*http.Requ
 		}
 	}
 
-	optns := DefaultDecodeOptions[*http.Request, TestDecodeContext]()
+	optns := NewDecodeOptions[*http.Request, TestDecodeContext]()
 	optns.Ctx = ctx
 	return optns
 }
