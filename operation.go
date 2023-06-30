@@ -46,5 +46,5 @@ func (f DecodeOperationFunc[IT, DC]) Decode(ctx DC, input IT, field reflect.Valu
 }
 
 // IgnoreDecodeValue can be returned from [DecodeOperation.Decode] to signal that the value should not be set on the
-// struct field. This is used for example in the "body" decoder.
+// struct field. This is used for example in HTTP "body" decoders.
 var IgnoreDecodeValue = struct{}{}

@@ -17,11 +17,12 @@ type DefaultOptions[IT any, DC DecodeContext] struct {
 }
 
 type DecodeOptions[IT any, DC DecodeContext] struct {
-	Ctx                       DC      // decode context to be sent to DecodeOperation
+	Ctx                       DC      // decode context to be sent to DecodeOperation.
 	MapTags                   MapTags // decode call-specific MapTags. They may override existing ones.
 	UseDecodeMapTagsAsDefault bool    // internal flag to allow Decode functions without an instance to set MapTags as a default one.
 }
 
+// DefaultDefaultOptions returns a DefaultOptions with the default values.
 func DefaultDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 	return DefaultOptions[IT, DC]{
 		TagName:            "instruct",
@@ -34,12 +35,14 @@ func DefaultDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 	}
 }
 
+// DefaultDecodeOptions returns a DecodeOptions with the default values.
 func DefaultDecodeOptions[IT any, DC DecodeContext]() DecodeOptions[IT, DC] {
 	return DecodeOptions[IT, DC]{}
 }
 
 // helpers
 
+// DefaultFieldNameMapper converts names to lowercase using [strings.ToLower].
 func DefaultFieldNameMapper(operation string, name string) string {
 	return strings.ToLower(name)
 }

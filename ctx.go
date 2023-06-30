@@ -2,18 +2,21 @@ package instruct
 
 // DecodeContext is the context sent to DecodeOperation.
 type DecodeContext interface {
+	// ValueUsed signals that the value was used.
 	ValueUsed(operation string, name string)
+	// GetUsedValues returns the list of used values for the operation.
 	GetUsedValues(operation string) map[string]bool
 	// FieldNameMapper returns the FieldNameMapper instance to be used for converting the struct field name.
 	FieldNameMapper() FieldNameMapper
 }
 
-// DefaultDecodeContext implements the standard decode context
+// DefaultDecodeContext implements the standard decode context.
 type DefaultDecodeContext struct {
 	FNMapper   FieldNameMapper
 	UsedValues map[string]map[string]bool
 }
 
+// NewDefaultDecodeContext creates an instance of DefaultDecodeContext.
 func NewDefaultDecodeContext(fnMapper FieldNameMapper) DefaultDecodeContext {
 	return DefaultDecodeContext{
 		FNMapper: fnMapper,

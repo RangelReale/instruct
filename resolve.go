@@ -52,7 +52,7 @@ func resolveValue(resolver Resolver, field reflect.Value, typ reflect.Type, valu
 	return nil
 }
 
-// DefaultResolve resolve the string value to the proper type and return the value
+// DefaultResolve resolve the string value to the proper type and return the value.
 func DefaultResolve(t interface{}, v string) (interface{}, error) {
 	switch t.(type) {
 	case string:
