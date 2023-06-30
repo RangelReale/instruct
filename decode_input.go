@@ -10,19 +10,6 @@ func (d *Decoder[IT, DC]) decodeInput(input IT, data any, decodeOptions DecodeOp
 	return d.decodeInputFromType(input, reflect.TypeOf(data), data, decodeOptions)
 }
 
-// structInfoFromType builds an structInfo from a [reflect.Type], using the decoder options.
-func (d *Decoder[IT, DC]) structInfoFromType(typ reflect.Type) (*structInfo, error) {
-	if typ == nil {
-		return nil, fmt.Errorf("cannot decode to nil")
-	}
-	typ = reflectElem(typ)
-	if typ.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("can only decode to struct, received: %v", typ.Kind())
-	}
-
-	return d.options.StructInfoProvider.provide(typ, d.options.MapTags.Get(typ), d.options)
-}
-
 func (d *Decoder[IT, DC]) decodeInputFromType(input IT, typ reflect.Type, data any, decodeOptions DecodeOptions[IT, DC]) error {
 	si, err := d.structInfoFromType(typ)
 	if err != nil {
@@ -67,4 +54,17 @@ func (d *Decoder[IT, DC]) decodeInputFromStructInfo(input IT, si *structInfo, da
 	}
 
 	return nil
+}
+
+// structInfoFromType builds an structInfo from a [reflect.Type], using the decoder options.
+func (d *Decoder[IT, DC]) structInfoFromType(typ reflect.Type) (*structInfo, error) {
+	if typ == nil {
+		return nil, fmt.Errorf("cannot decode to nil")
+	}
+	typ = reflectElem(typ)
+	if typ.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("can only decode to struct, received: %v", typ.Kind())
+	}
+
+	return d.options.StructInfoProvider.provide(typ, d.options.MapTags.Get(typ), d.options)
 }

@@ -3,6 +3,7 @@ package instruct
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -132,16 +133,16 @@ func TestDecodeMapTags(t *testing.T) {
 
 	var data DataType
 
-	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
-	decOpt := GetTestDecoderDecodeOptions(nil)
-	decOpt.UseDecodeMapTagsAsDefault = true
-	decOpt.MapTags = map[string]any{
+	defOpt := GetTestDecoderOptions()
+	defOpt.MapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
 		"Val": "header",
 		"X": map[string]any{
 			"X1": "header",
 		},
-	}
-	err := dec.Decode(r, &data, decOpt)
+	})
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.NoError(t, err)
 	require.Equal(t, "x1", data.Val)
 }
@@ -159,10 +160,39 @@ func TestDecodeMapTagsOverrideStructTags(t *testing.T) {
 
 	var data DataType
 
+	defOpt := GetTestDecoderOptions()
+	defOpt.MapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
+		"X": map[string]any{
+			"X1": "header",
+		},
+	})
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, "x1", data.Val)
+	require.Equal(t, "x2", data.X.X1)
+}
+
+func TestDecodeMapTagsDecodeAsDefault(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("val", "x1")
+	r.Header.Set("x1", "x2")
+
+	type DataType struct {
+		Val string
+		X   struct {
+			X1 string
+		}
+	}
+
+	var data DataType
+
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	decOpt := GetTestDecoderDecodeOptions(nil)
 	decOpt.UseDecodeMapTagsAsDefault = true
 	decOpt.MapTags = map[string]any{
+		"Val": "header",
 		"X": map[string]any{
 			"X1": "header",
 		},
@@ -170,5 +200,31 @@ func TestDecodeMapTagsOverrideStructTags(t *testing.T) {
 	err := dec.Decode(r, &data, decOpt)
 	require.NoError(t, err)
 	require.Equal(t, "x1", data.Val)
-	require.Equal(t, "x2", data.X.X1)
+}
+
+func TestDecodeMapTagsNoDecodeAsDefault(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("val", "x1")
+	r.Header.Set("x1", "x2")
+
+	type DataType struct {
+		Val string
+		X   struct {
+			X1 string
+		}
+	}
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	decOpt := GetTestDecoderDecodeOptions(nil)
+	decOpt.UseDecodeMapTagsAsDefault = false
+	decOpt.MapTags = map[string]any{
+		"Val": "header",
+		"X": map[string]any{
+			"X1": "header",
+		},
+	}
+	err := dec.Decode(r, &data, decOpt)
+	require.Error(t, err)
 }
