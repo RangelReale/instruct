@@ -30,3 +30,21 @@ func (e *InvalidDecodeError) Error() string {
 	}
 	return "error: Decode(nil " + e.Type.String() + ")"
 }
+
+// An RequiredError is returned when some values were not used.
+type RequiredError struct {
+	IsStructOption bool
+	Operation      string
+	FieldName      string
+	TagName        string
+}
+
+func (e RequiredError) Error() string {
+	f := "field"
+	if e.IsStructOption {
+		f = "struct option"
+	}
+
+	return fmt.Sprintf("%s '%s' (tag name '%s') with operation '%s' is required but was not set",
+		f, e.FieldName, e.TagName, e.Operation)
+}

@@ -43,8 +43,11 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 		}
 
 		if !dataWasSet && sifield.tag.Required {
-			return fmt.Errorf("field '%s' (tag name '%s') with operation '%s' is required but was not set",
-				sifield.fullFieldName(), sifield.tag.Name, sifield.tag.Operation)
+			return RequiredError{
+				Operation: sifield.tag.Operation,
+				FieldName: sifield.fullFieldName(),
+				TagName:   sifield.tag.Name,
+			}
 		}
 	}
 
@@ -70,7 +73,17 @@ func (d *Decoder[IT, DC]) executeStructOperation(when string, dataValue reflect.
 		return err
 	}
 	if !dataWasSet && si.tag.Required {
-		return fmt.Errorf("struct option operation '%s' is required but was not set", si.tag.Operation)
+		fn := si.fullFieldName()
+		if fn == "" {
+			fn = si.typ.String()
+		}
+
+		return RequiredError{
+			IsStructOption: true,
+			Operation:      si.tag.Operation,
+			FieldName:      fn,
+			TagName:        si.tag.Name,
+		}
 	}
 	return nil
 }

@@ -115,8 +115,46 @@ func TestDecodeNoContext(t *testing.T) {
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	decOpt := GetTestDecoderDecodeOptions(nil)
 	decOpt.Ctx = nil
-	err := dec.Decode(r, data, decOpt)
+	err := dec.Decode(r, &data, decOpt)
 	require.Error(t, err)
+}
+
+func TestDecodeRequiredError(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("other-val", "x1")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	var reqErr RequiredError
+	require.ErrorAs(t, err, &reqErr)
+	require.Equal(t, TestOperationHeader, reqErr.Operation)
+	require.Equal(t, "Val", reqErr.FieldName)
+	require.Equal(t, "val", reqErr.TagName)
+}
+
+func TestDecodeStructOptionRequiredError(t *testing.T) {
+	type DataType struct {
+		_ StructOption `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("other-val", "x1")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	var reqErr RequiredError
+	require.ErrorAs(t, err, &reqErr)
+	require.Equal(t, TestOperationHeader, reqErr.Operation)
+	require.Equal(t, "instruct.DataType", reqErr.FieldName)
+	require.Equal(t, "_", reqErr.TagName)
 }
 
 func TestDecodeMapTags(t *testing.T) {
