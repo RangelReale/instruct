@@ -12,32 +12,32 @@ type DecodeContext interface {
 
 // DefaultDecodeContext implements the standard decode context.
 type DefaultDecodeContext struct {
-	FNMapper   FieldNameMapper
-	UsedValues map[string]map[string]bool
+	fieldNameMapper FieldNameMapper
+	usedValues      map[string]map[string]bool
 }
 
 // NewDefaultDecodeContext creates an instance of DefaultDecodeContext.
 func NewDefaultDecodeContext(fnMapper FieldNameMapper) DefaultDecodeContext {
 	return DefaultDecodeContext{
-		FNMapper: fnMapper,
+		fieldNameMapper: fnMapper,
 	}
 }
 
 func (d *DefaultDecodeContext) ValueUsed(operation string, name string) {
-	if d.UsedValues == nil {
-		d.UsedValues = map[string]map[string]bool{}
+	if d.usedValues == nil {
+		d.usedValues = map[string]map[string]bool{}
 	}
-	if _, ok := d.UsedValues[operation]; !ok {
-		d.UsedValues[operation] = map[string]bool{}
+	if _, ok := d.usedValues[operation]; !ok {
+		d.usedValues[operation] = map[string]bool{}
 	}
-	d.UsedValues[operation][name] = true
+	d.usedValues[operation][name] = true
 }
 
 func (d *DefaultDecodeContext) GetUsedValues(operation string) map[string]bool {
-	if d.UsedValues == nil {
+	if d.usedValues == nil {
 		return nil
 	}
-	operationValues, ok := d.UsedValues[operation]
+	operationValues, ok := d.usedValues[operation]
 	if !ok {
 		return nil
 	}
@@ -46,5 +46,5 @@ func (d *DefaultDecodeContext) GetUsedValues(operation string) map[string]bool {
 }
 
 func (d *DefaultDecodeContext) FieldNameMapper() FieldNameMapper {
-	return d.FNMapper
+	return d.fieldNameMapper
 }
