@@ -31,7 +31,7 @@ func (e *InvalidDecodeError) Error() string {
 	return "error: Decode(nil " + e.Type.String() + ")"
 }
 
-// An RequiredError is returned when some values were not used.
+// A RequiredError is returned when some values were not used.
 type RequiredError struct {
 	IsStructOption bool
 	Operation      string
@@ -47,4 +47,15 @@ func (e RequiredError) Error() string {
 
 	return fmt.Sprintf("%s '%s' (tag name '%s') with operation '%s' is required but was not set",
 		f, e.FieldName, e.TagName, e.Operation)
+}
+
+// A OperationNotSupportedError is returned when an operation is not supported on the field.
+type OperationNotSupportedError struct {
+	Operation string
+	FieldName string
+}
+
+func (e OperationNotSupportedError) Error() string {
+	return fmt.Sprintf("operation '%s' not supported (no field type, maybe struct option?) for field '%s'",
+		e.Operation, e.FieldName)
 }

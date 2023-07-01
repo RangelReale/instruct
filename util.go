@@ -21,6 +21,13 @@ func reflectValueElem(t reflect.Value) reflect.Value {
 	return t
 }
 
+func structFieldName(structTyp reflect.Type, fieldName string) string {
+	if fieldName == "" {
+		return structTyp.String()
+	}
+	return fieldName
+}
+
 func isZero[T any](v T) bool {
 	return reflect.ValueOf(&v).Elem().IsZero()
 }

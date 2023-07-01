@@ -81,7 +81,7 @@ func (d *Decoder[IT, DC]) executeStructOperation(when string, dataValue reflect.
 		return RequiredError{
 			IsStructOption: true,
 			Operation:      si.tag.Operation,
-			FieldName:      fn,
+			FieldName:      structFieldName(si.typ, si.fullFieldName()),
 			TagName:        si.tag.Name,
 		}
 	}
@@ -107,8 +107,10 @@ func (d *Decoder[IT, DC]) executeOperation(field reflect.Value, sifield *structI
 	if dataWasSet && value != IgnoreDecodeValue {
 		if sifield.field.Type == nil {
 			// struct option can't be set as a value
-			return false, fmt.Errorf("operation '%s' not supported (no field type, maybe struct option?) for field '%s'",
-				sifield.tag.Operation, sifield.field.Name)
+			return false, OperationNotSupportedError{
+				Operation: sifield.tag.Operation,
+				FieldName: structFieldName(sifield.typ, sifield.fullFieldName()),
+			}
 		}
 
 		// convert the value from string/[]string to the struct field type.
