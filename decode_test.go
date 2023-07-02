@@ -18,7 +18,7 @@ func TestDecode(t *testing.T) {
 	}
 
 	type DTest1 struct {
-		Q string `instruct:"query,name=Q1"`
+		Q int `instruct:"query,name=Q1"`
 	}
 
 	type DTestBody struct {
@@ -37,7 +37,7 @@ func TestDecode(t *testing.T) {
 	r.Header.Add("H", "ValueH")
 	q := r.URL.Query()
 	q.Add("q", "ValueQ")
-	q.Add("Q1", "ValueQ1")
+	q.Add("Q1", "66")
 	r.URL.RawQuery = q.Encode()
 
 	data := &DTest{}
@@ -47,7 +47,7 @@ func TestDecode(t *testing.T) {
 			Q: "ValueQ",
 		},
 		T1: DTest1{
-			Q: "ValueQ1",
+			Q: 66,
 		},
 		TB: DTestBody{
 			F1: "ValueF1",
