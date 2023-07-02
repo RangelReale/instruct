@@ -211,9 +211,21 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 		I Inner
 	}
 
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"Val": "14"}`))
+	// map tag have priority over all others
+	type DataType3 struct {
+		I Inner `instruct:"body,type=json"`
+	}
 
-	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	defOpt := GetTestDecoderOptions()
+	defOpt.MapTags.Set(reflect.TypeOf(DataType3{}), MapTags{
+		"I": MapTags{
+			"Val": "header",
+		},
+	})
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+
+	// use struct tag
+	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"Val": "14"}`))
 
 	var data DataType
 
@@ -224,6 +236,7 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "14", data.I.Val)
 
+	// use struct option
 	r = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`<Inner><Val>15</Val></Inner>`))
 
 	var data2 DataType2
@@ -234,6 +247,19 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	}))
 	require.NoError(t, err)
 	require.Equal(t, "15", data2.I.Val)
+
+	// use map tag
+	r = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`<Inner><Val>15</Val></Inner>`))
+	r.Header.Set("val", "90")
+
+	var data3 DataType3
+
+	err = dec.Decode(r, &data3, GetTestDecoderDecodeOptions(&testDecodeContext{
+		sliceSplitSeparator: ",",
+		allowReadBody:       true,
+	}))
+	require.NoError(t, err)
+	require.Equal(t, "90", data3.I.Val)
 }
 
 func TestDecodeMapTags(t *testing.T) {
