@@ -2,6 +2,7 @@ package instruct
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/RangelReale/instruct/coerce"
@@ -89,7 +90,8 @@ func DefaultResolve(target reflect.Value, value any) error {
 		return err
 	}
 
-	return errors.New("not possible")
+	return fmt.Errorf("cannot coerce source of type '%s' into target of type '%s'",
+		sourceValue.Type().Kind(), target.Type().Kind())
 }
 
 func tryAssign(st, tt reflect.Type, sv, tv reflect.Value) bool {

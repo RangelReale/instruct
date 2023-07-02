@@ -114,7 +114,7 @@ func (d *Decoder[IT, DC]) executeOperation(field reflect.Value, sifield *structI
 		}
 
 		if err = d.options.Resolver.Resolve(field, value); err != nil {
-			return false, err
+			return false, fmt.Errorf("error resolving field '%s': %w", sifield.fullFieldName(), err)
 		}
 
 		// // convert the value from string/[]string to the struct field type.
