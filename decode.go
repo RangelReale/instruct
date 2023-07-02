@@ -27,7 +27,7 @@ func (d *Decoder[IT, DC]) Decode(input IT, data any, decodeOptions DecodeOptions
 
 	if decodeOptions.UseDecodeMapTagsAsDefault && decodeOptions.MapTags != nil {
 		// helper option to automatically set map tags as default, meant for free-standind "Decode" functions only.
-		d.options.MapTags.Set(reflectElem(reflect.TypeOf(data)), decodeOptions.MapTags)
+		d.options.defaultMapTags.Set(reflectElem(reflect.TypeOf(data)), decodeOptions.MapTags)
 		decodeOptions.MapTags = nil
 	}
 

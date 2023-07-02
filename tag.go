@@ -99,7 +99,7 @@ func parseStructTagMapTags[IT any, DC DecodeContext](ctx *buildContext, field re
 			}
 		}
 
-		return nil, fmt.Errorf("unknown map tags item type (only 'string', 'MapTags' and 'map[string]any' are allowed): %T", ft)
+		return nil, fmt.Errorf("unknown map tags item type (only 'string', 'defaultMapTags' and 'map[string]any' are allowed): %T", ft)
 	}
 
 	return nil, nil

@@ -1,6 +1,9 @@
 package instruct
 
-import "strings"
+import (
+	"reflect"
+	"strings"
+)
 
 // FieldNameMapper maps a struct field name to the target field name.
 // The default one uses [strings.ToLower].
@@ -10,10 +13,24 @@ type DefaultOptions[IT any, DC DecodeContext] struct {
 	TagName            string                             // struct tag name. Default "inreq".
 	DefaultRequired    bool                               // whether the default for fields should be "required" or "not required"
 	DecodeOperations   map[string]DecodeOperation[IT, DC] // list of decode operations
-	MapTags            *mapTagsList                       // list of DEFAULT map tags
+	defaultMapTags     *mapTagsList                       // list of DEFAULT map tags
 	FieldNameMapper    FieldNameMapper                    // field name mapper. Default one uses [strings.ToLower].
-	StructInfoProvider structInfoProvider[IT, DC]         // allows caching of structInfo
+	structInfoProvider structInfoProvider[IT, DC]         // allows caching of structInfo
 	Resolver           Resolver                           // interface used to convert strings to the struct field type.
+}
+
+func (o *DefaultOptions[IT, DC]) DefaultMapTagsSet(t reflect.Type, m MapTags) {
+	t = reflectElem(t)
+	o.defaultMapTags.Set(t, m)
+	o.structInfoProvider.remove(t)
+}
+
+func (o *DefaultOptions[IT, DC]) StructInfoCache(cache bool) {
+	if cache {
+		o.structInfoProvider = &CachedStructInfoProvider[IT, DC]{}
+	} else {
+		o.structInfoProvider = &DefaultStructInfoProvider[IT, DC]{}
+	}
 }
 
 type DecodeOptions[IT any, DC DecodeContext] struct {
@@ -28,9 +45,9 @@ func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 		TagName:            "instruct",
 		DefaultRequired:    true,
 		DecodeOperations:   map[string]DecodeOperation[IT, DC]{},
-		MapTags:            &mapTagsList{},
+		defaultMapTags:     &mapTagsList{},
 		FieldNameMapper:    DefaultFieldNameMapper,
-		StructInfoProvider: DefaultStructInfoProvider[IT, DC]{},
+		structInfoProvider: DefaultStructInfoProvider[IT, DC]{},
 		Resolver:           &DefaultResolver{},
 	}
 }

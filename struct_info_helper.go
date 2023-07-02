@@ -73,6 +73,7 @@ func structInfoFindOptionsFieldMapTags[IT any, DC DecodeContext](ctx *buildConte
 // structInfoProvider abstracts a posssible cache of structInfo
 type structInfoProvider[IT any, DC DecodeContext] interface {
 	provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error)
+	remove(t reflect.Type)
 }
 
 // DefaultStructInfoProvider is a structInfoProvider that never caches.
@@ -82,6 +83,8 @@ type DefaultStructInfoProvider[IT any, DC DecodeContext] struct {
 func (d DefaultStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	return buildStructInfo(t, mapTags, options)
 }
+
+func (d DefaultStructInfoProvider[IT, DC]) remove(t reflect.Type) {}
 
 // CachedStructInfoProvider is a structInfoProvider that always caches.
 type CachedStructInfoProvider[IT any, DC DecodeContext] struct {
@@ -102,4 +105,8 @@ func (d *CachedStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTa
 	d.cache.Store(t, si)
 
 	return si, nil
+}
+
+func (d *CachedStructInfoProvider[IT, DC]) remove(t reflect.Type) {
+	d.cache.Delete(t)
 }

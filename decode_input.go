@@ -66,5 +66,5 @@ func (d *Decoder[IT, DC]) structInfoFromType(typ reflect.Type) (*structInfo, err
 		return nil, fmt.Errorf("can only decode to struct, received: %v", typ.Kind())
 	}
 
-	return d.options.StructInfoProvider.provide(typ, d.options.MapTags.Get(typ), d.options)
+	return d.options.structInfoProvider.provide(typ, d.options.defaultMapTags.Get(typ), d.options)
 }

@@ -66,7 +66,7 @@ func buildStructInfo[IT any, DC DecodeContext](t reflect.Type, mapTags MapTags, 
 	}
 
 	if mapTags != nil {
-		// check unused MapTags keys
+		// check unused defaultMapTags keys
 		err = mapTags.checkUnusedFields(ctx.GetUsedValues(mapTagValueKey))
 		if err != nil {
 			return nil, err
