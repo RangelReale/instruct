@@ -64,7 +64,7 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 // executeStructOperation execute the struct operation (using StructOption or inner struct tags).
 func (d *Decoder[IT, DC]) executeStructOperation(when string, dataValue reflect.Value, si *structInfo,
 	input IT, decodeOptions DecodeOptions[IT, DC]) error {
-	if si.tag == nil || !si.hasStructOption || soOptionValue(si.tag.SOWhen) != when {
+	if si.tag == nil || !si.tag.IsSO || soOptionValue(si.tag.SOWhen) != when {
 		return nil
 	}
 

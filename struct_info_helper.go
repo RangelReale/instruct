@@ -7,10 +7,11 @@ import (
 )
 
 type buildContext struct {
-	usedValues      map[string]map[string]bool
-	clone           bool
-	skipMapTags     bool
-	skipStructField bool
+	usedValues       map[string]map[string]bool
+	clone            bool
+	skipMapTags      bool
+	skipStructField  bool
+	skipStructOption bool
 }
 
 func (d *buildContext) ValueUsed(operation string, name string) {
@@ -37,7 +38,7 @@ func (d *buildContext) GetUsedValues(operation string) map[string]bool {
 
 // structInfoFindOptionsFieldStructField finds a struct option field inside the struct fields.
 func structInfoFindOptionsFieldStructField[IT any, DC DecodeContext](ctx *buildContext, t reflect.Type, lvl level,
-	mapTags MapTags, options DefaultOptions[IT, DC]) (*Tag, error) {
+	mapTags MapTags, options *DefaultOptions[IT, DC]) (*Tag, error) {
 	var tag *Tag
 
 	for i := 0; i < t.NumField(); i++ {
@@ -47,7 +48,7 @@ func structInfoFindOptionsFieldStructField[IT any, DC DecodeContext](ctx *buildC
 				return nil, fmt.Errorf("only one StructOption is allowed per struct for field '%s'", lvl.StringPath())
 			}
 			var err error
-			tag, err = parseStructTag(ctx, field, lvl, mapTags, &options)
+			tag, err = parseStructTag(ctx, nil, &field, lvl, mapTags, options)
 			if err != nil {
 				return nil, fmt.Errorf("error on field '%s': %w", lvl.StringPath(), err)
 			}
@@ -59,40 +60,13 @@ func structInfoFindOptionsFieldStructField[IT any, DC DecodeContext](ctx *buildC
 
 // structInfoFindOptionsFieldMapTags finds a struct option field from the MapTags.
 func structInfoFindOptionsFieldMapTags[IT any, DC DecodeContext](ctx *buildContext, t reflect.Type, lvl level,
-	mapTags MapTags, options DefaultOptions[IT, DC]) (*Tag, error) {
+	mapTags MapTags, options *DefaultOptions[IT, DC]) (*Tag, error) {
 	if mapTags != nil {
 		if _, ok := mapTags.findStringPath(lvl.Append(StructOptionMapTag).Path()); ok {
-			return parseStructTag(ctx, reflect.StructField{Name: StructOptionMapTag},
-				lvl.Append(StructOptionMapTag), mapTags, &options)
+			return parseStructTag(ctx, nil, &reflect.StructField{Name: StructOptionMapTag},
+				lvl.Append(StructOptionMapTag), mapTags, options)
 		}
 	}
-	return nil, nil
-}
-
-// structInfoFindOptionsField finds a struct option field from either the MapTags or the struct fields.
-func structInfoFindOptionsField[IT any, DC DecodeContext](ctx *buildContext, t reflect.Type, lvl level,
-	mapTags MapTags,
-	options DefaultOptions[IT, DC]) (*Tag, error) {
-	if !ctx.skipMapTags {
-		tag, err := structInfoFindOptionsFieldMapTags(ctx, t, lvl, mapTags, options)
-		if err != nil {
-			return nil, err
-		}
-		if tag != nil {
-			return tag, nil
-		}
-	}
-
-	if !ctx.skipStructField {
-		tag, err := structInfoFindOptionsFieldStructField(ctx, t, lvl, mapTags, options)
-		if err != nil {
-			return nil, err
-		}
-		if tag != nil {
-			return tag, nil
-		}
-	}
-
 	return nil, nil
 }
 

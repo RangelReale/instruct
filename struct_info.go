@@ -8,12 +8,11 @@ import (
 
 // structInfo caches struct field configurations.
 type structInfo struct {
-	typ             reflect.Type
-	field           reflect.StructField
-	tag             *Tag
-	path            []string
-	fields          []*structInfo
-	hasStructOption bool
+	typ    reflect.Type
+	field  reflect.StructField
+	tag    *Tag
+	path   []string
+	fields []*structInfo
 }
 
 func (s *structInfo) fullFieldName() string {
@@ -49,9 +48,18 @@ func (s *structInfo) fieldByName(name string) *structInfo {
 func buildStructInfo[IT any, DC DecodeContext](t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	ctx := &buildContext{}
 
+	t = reflectElem(t)
+
+	// parse struct tags if available
+	tag, err := parseStructTagStructOption(ctx, t, level{}, mapTags, &options)
+	if err != nil {
+		return nil, err
+	}
+
 	// build struct info for root struct.
 	si, err := buildStructInfoItem(ctx, &structInfo{
-		typ: reflectElem(t),
+		typ: t,
+		tag: tag,
 	}, level{}, mapTags, options)
 	if err != nil {
 		return nil, err
@@ -74,15 +82,15 @@ func buildStructInfo[IT any, DC DecodeContext](t reflect.Type, mapTags MapTags, 
 func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *structInfo, lvl level, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	siBuild := buildCloneStructInfo(ctx, si, false)
 
-	// try to find option field first
-	if siTag, err := structInfoFindOptionsField(ctx, siBuild.typ, lvl, mapTags, options); err == nil && siTag != nil {
-		siBuild.tag = siTag
-		siBuild.hasStructOption = true
-	} else if err != nil {
-		return nil, err
-	}
+	// // try to find option field first
+	// if siTag, err := structInfoFindOptionsField(ctx, siBuild.typ, lvl, mapTags, options); err == nil && siTag != nil {
+	// 	siBuild.tag = siTag
+	// 	siBuild.hasStructOption = true
+	// } else if err != nil {
+	// 	return nil, err
+	// }
 
-	if siBuild.tag != nil && siBuild.hasStructOption {
+	if siBuild.tag != nil && siBuild.tag.IsSO {
 		// check struct option
 		if siBuild.tag.Operation == OperationIgnore {
 			return nil, fmt.Errorf("cannot ignore struct option for field '%s'", lvl.StringPath())
@@ -113,7 +121,7 @@ func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *struct
 		}
 
 		// parse struct tag or equivalent map tag.
-		if tag, err := parseStructTag(ctx, field, curlevel, mapTags, &options); err != nil {
+		if tag, err := parseStructTag(ctx, &si.typ, &field, curlevel, mapTags, &options); err != nil {
 			return nil, fmt.Errorf("error on field '%s': %w", curlevel.StringPath(), err)
 		} else if tag != nil {
 			sifield.tag = tag
@@ -145,8 +153,9 @@ func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *struct
 // change the original in any way.
 func structInfoWithMapTags[IT any, DC DecodeContext](si *structInfo, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	ctx := &buildContext{
-		clone:           true,
-		skipStructField: true,
+		clone:            true,
+		skipStructField:  true,
+		skipStructOption: true,
 	}
 
 	newsi, err := buildStructInfoItem(ctx, si, level{}, mapTags, options)
@@ -170,11 +179,10 @@ func buildCloneStructInfo(ctx *buildContext, si *structInfo, withFields bool) *s
 		return si
 	}
 	ret := &structInfo{
-		typ:             si.typ,
-		field:           si.field,
-		tag:             si.tag,
-		path:            si.path,
-		hasStructOption: si.hasStructOption,
+		typ:   si.typ,
+		field: si.field,
+		tag:   si.tag,
+		path:  si.path,
 	}
 	if withFields {
 		ret.fields = si.fields

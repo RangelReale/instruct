@@ -14,8 +14,9 @@ type Tag struct {
 	Name      string     // data name (for example, header or query param name)
 	Required  bool       // whether this field is required to be set
 	Options   TagOptions // options
-	SOWhen    string     // struct options: when to parse (before or after the fields)
-	SORecurse bool       // struct options: whether to recurse into inner struct
+	IsSO      bool
+	SOWhen    string // struct options: when to parse (before or after the fields)
+	SORecurse bool   // struct options: whether to recurse into inner struct
 }
 
 type TagOptions struct {
@@ -104,11 +105,40 @@ func parseStructTagMapTags[IT any, DC DecodeContext](ctx *buildContext, field re
 	return nil, nil
 }
 
-// parseStructTagStructField parses a Tag from a MapTags or a struct tag.
-func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, field reflect.StructField, lvl level, mapTags MapTags,
-	options *DefaultOptions[IT, DC]) (*Tag, error) {
+// parseStructTagStructOption finds a struct option field from either the MapTags or the struct fields.
+func parseStructTagStructOption[IT any, DC DecodeContext](ctx *buildContext, t reflect.Type, lvl level,
+	mapTags MapTags, options *DefaultOptions[IT, DC]) (*Tag, error) {
 	if !ctx.skipMapTags {
-		tag, err := parseStructTagMapTags(ctx, field, lvl, mapTags, options)
+		tag, err := structInfoFindOptionsFieldMapTags(ctx, t, lvl, mapTags, options)
+		if err != nil {
+			return nil, err
+		}
+		if tag != nil {
+			tag.IsSO = true
+			return tag, nil
+		}
+	}
+
+	if !ctx.skipStructField {
+		tag, err := structInfoFindOptionsFieldStructField(ctx, t, lvl, mapTags, options)
+		if err != nil {
+			return nil, err
+		}
+		if tag != nil {
+			tag.IsSO = true
+			return tag, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// parseStructTagStructField parses a Tag from a MapTags or a struct tag.
+func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, structType *reflect.Type, field *reflect.StructField,
+	lvl level, mapTags MapTags,
+	options *DefaultOptions[IT, DC]) (*Tag, error) {
+	if field != nil && !ctx.skipMapTags {
+		tag, err := parseStructTagMapTags(ctx, *field, lvl, mapTags, options)
 		if err != nil {
 			return nil, err
 		}
@@ -116,8 +146,17 @@ func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, field reflect.S
 			return tag, nil
 		}
 	}
-	if !ctx.skipStructField {
-		tag, err := parseStructTagStructField(ctx, field, lvl, options)
+	if field != nil && !ctx.skipStructField {
+		tag, err := parseStructTagStructField(ctx, *field, lvl, options)
+		if err != nil {
+			return nil, err
+		}
+		if tag != nil {
+			return tag, nil
+		}
+	}
+	if structType != nil && !ctx.skipStructOption {
+		tag, err := parseStructTagStructOption(ctx, *structType, lvl, mapTags, options)
 		if err != nil {
 			return nil, err
 		}
