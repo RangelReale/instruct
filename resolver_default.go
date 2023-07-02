@@ -1,7 +1,6 @@
 package instruct
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -16,82 +15,123 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 }
 
 func DefaultResolve(target reflect.Value, value any) error {
-	if !target.CanSet() {
-		return errors.New("not can set")
-	}
+	source := reflect.ValueOf(value)
 
-	if value == nil {
-		target.SetZero()
+	targetType := unpointType(target.Type())
+	sourceType := unpointType(source.Type())
+	targetValue := unpointValue(target)
+	sourceValue := unpointValue(source)
+
+	if tryAssign(sourceType, targetType, sourceValue, targetValue) {
 		return nil
 	}
 
-	sourceValue := reflect.ValueOf(value)
-
-	if tryAssign(sourceValue.Type(), target.Type(), sourceValue, target) {
-		return nil
-	}
-
-	switch target.Kind() {
+	switch targetType.Kind() {
 	case reflect.Bool:
 		c, err := coerce.Bool(value)
-		target.SetBool(c)
+		targetValue.SetBool(c)
 		return err
 	case reflect.Float32:
 		c, err := coerce.Float32(value)
-		target.SetFloat(float64(c))
+		targetValue.SetFloat(float64(c))
 		return err
 	case reflect.Float64:
 		c, err := coerce.Float64(value)
-		target.SetFloat(c)
+		targetValue.SetFloat(c)
 		return err
 	case reflect.Int:
 		c, err := coerce.Int(value)
-		target.SetInt(int64(c))
+		targetValue.SetInt(int64(c))
 		return err
 	case reflect.Int8:
 		c, err := coerce.Int8(value)
-		target.SetInt(int64(c))
+		targetValue.SetInt(int64(c))
 		return err
 	case reflect.Int16:
 		c, err := coerce.Int16(value)
-		target.SetInt(int64(c))
+		targetValue.SetInt(int64(c))
 		return err
 	case reflect.Int32:
 		c, err := coerce.Int32(value)
-		target.SetInt(int64(c))
+		targetValue.SetInt(int64(c))
 		return err
 	case reflect.Int64:
 		c, err := coerce.Int64(value)
-		target.SetInt(int64(c))
+		targetValue.SetInt(int64(c))
 		return err
 	case reflect.Uint:
 		c, err := coerce.Uint(value)
-		target.SetUint(uint64(c))
+		targetValue.SetUint(uint64(c))
 		return err
 	case reflect.Uint8:
 		c, err := coerce.Uint8(value)
-		target.SetUint(uint64(c))
+		targetValue.SetUint(uint64(c))
 		return err
 	case reflect.Uint16:
 		c, err := coerce.Uint16(value)
-		target.SetUint(uint64(c))
+		targetValue.SetUint(uint64(c))
 		return err
 	case reflect.Uint32:
 		c, err := coerce.Uint32(value)
-		target.SetUint(uint64(c))
+		targetValue.SetUint(uint64(c))
 		return err
 	case reflect.Uint64:
 		c, err := coerce.Uint64(value)
-		target.SetUint(uint64(c))
+		targetValue.SetUint(uint64(c))
 		return err
 	case reflect.String:
 		c, err := coerce.String(value)
-		target.SetString(c)
+		targetValue.SetString(c)
 		return err
 	}
 
-	return fmt.Errorf("cannot coerce source of type '%s' into target of type '%s'",
-		sourceValue.Type().Kind(), target.Type().Kind())
+	if targetType.Kind() == reflect.Interface {
+		// this is an interface
+		targetValue.Set(sourceValue)
+		return nil
+	}
+
+	switch sourceType.Kind() {
+	case reflect.Slice:
+		// this is a slice, so we expect the target to be a slice too
+		if targetType.Kind() != reflect.Slice {
+			return fmt.Errorf("expected an array to coerce an array into")
+		}
+		elemType := targetType.Elem()
+		targetSliceValue := reflect.MakeSlice(reflect.SliceOf(elemType), 0, 0)
+		for i := 0; i < sourceValue.Len(); i++ {
+			// slicePath := append(path, i)
+			sourceElemValue := sourceValue.Index(i)
+			var targetValue reflect.Value
+			if elemType.Kind() == reflect.Ptr {
+				// the slice expects a pointer type
+				targetValue = reflect.New(unpointType(elemType))
+			} else {
+				// the slice expects a literal type
+				targetValue = reflect.New(elemType)
+			}
+			if err := DefaultResolve(targetValue, sourceElemValue.Interface()); err != nil {
+				return err
+			}
+			if elemType.Kind() == reflect.Ptr {
+				// the slice expects a pointer type
+				targetSliceValue = reflect.Append(targetSliceValue, targetValue)
+			} else {
+				// the slice expects a literal type
+				targetSliceValue = reflect.Append(targetSliceValue, unpointValue(targetValue))
+			}
+		}
+		if !targetValue.CanSet() {
+			return fmt.Errorf("cannot set '%s' ", targetType.Kind())
+		}
+
+		targetValue.Set(targetSliceValue)
+	default:
+		return fmt.Errorf("cannot coerce source of type '%s' into target of type '%s'",
+			sourceType.Kind(), targetType.Kind())
+	}
+
+	return nil
 }
 
 func tryAssign(st, tt reflect.Type, sv, tv reflect.Value) bool {
@@ -110,7 +150,8 @@ func tryAssign(st, tt reflect.Type, sv, tv reflect.Value) bool {
 		return true
 	}
 
-	if st.ConvertibleTo(tt) {
+	if tt.Kind() != reflect.Slice && st.ConvertibleTo(tt) {
+		// slices are handled manually
 		tv.Set(sv.Convert(tt))
 		return true
 	}
