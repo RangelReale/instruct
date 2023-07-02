@@ -50,7 +50,7 @@ func buildStructInfo[IT any, DC DecodeContext](t reflect.Type, mapTags MapTags, 
 
 	t = reflectElem(t)
 
-	// parse struct tags if available
+	// parse struct option if available
 	tag, err := parseStructTagStructOption(ctx, t, level{}, mapTags, &options)
 	if err != nil {
 		return nil, err
@@ -81,14 +81,6 @@ func buildStructInfo[IT any, DC DecodeContext](t reflect.Type, mapTags MapTags, 
 // it returns copies of the fields and don't change the original.
 func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *structInfo, lvl level, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	siBuild := buildCloneStructInfo(ctx, si, false)
-
-	// // try to find option field first
-	// if siTag, err := structInfoFindOptionsField(ctx, siBuild.typ, lvl, mapTags, options); err == nil && siTag != nil {
-	// 	siBuild.tag = siTag
-	// 	siBuild.hasStructOption = true
-	// } else if err != nil {
-	// 	return nil, err
-	// }
 
 	if siBuild.tag != nil && siBuild.tag.IsSO {
 		// check struct option
@@ -121,7 +113,7 @@ func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *struct
 		}
 
 		// parse struct tag or equivalent map tag.
-		if tag, err := parseStructTag(ctx, &si.typ, &field, curlevel, mapTags, &options); err != nil {
+		if tag, err := parseStructTag(ctx, field, curlevel, mapTags, &options); err != nil {
 			return nil, fmt.Errorf("error on field '%s': %w", curlevel.StringPath(), err)
 		} else if tag != nil {
 			sifield.tag = tag

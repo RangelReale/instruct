@@ -48,7 +48,7 @@ func structInfoFindOptionsFieldStructField[IT any, DC DecodeContext](ctx *buildC
 				return nil, fmt.Errorf("only one StructOption is allowed per struct for field '%s'", lvl.StringPath())
 			}
 			var err error
-			tag, err = parseStructTag(ctx, nil, &field, lvl, mapTags, options)
+			tag, err = parseStructTag(ctx, field, lvl, mapTags, options)
 			if err != nil {
 				return nil, fmt.Errorf("error on field '%s': %w", lvl.StringPath(), err)
 			}
@@ -63,7 +63,7 @@ func structInfoFindOptionsFieldMapTags[IT any, DC DecodeContext](ctx *buildConte
 	mapTags MapTags, options *DefaultOptions[IT, DC]) (*Tag, error) {
 	if mapTags != nil {
 		if _, ok := mapTags.findStringPath(lvl.Append(StructOptionMapTag).Path()); ok {
-			return parseStructTag(ctx, nil, &reflect.StructField{Name: StructOptionMapTag},
+			return parseStructTag(ctx, reflect.StructField{Name: StructOptionMapTag},
 				lvl.Append(StructOptionMapTag), mapTags, options)
 		}
 	}

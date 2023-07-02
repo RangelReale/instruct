@@ -1,6 +1,7 @@
 package instruct
 
 import (
+	"encoding/xml"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -194,28 +195,46 @@ func TestDecodeStructOptionInvalidType(t *testing.T) {
 	require.Equal(t, "instruct.DataType", opErr.FieldName)
 }
 
-// func TestDecodeStructOptionAmbiguous(t *testing.T) {
-// 	type Inner struct {
-// 		_ StructOption `instruct:"header"`
-// 	}
-// 	type DataType struct {
-// 		I Inner `instruct:"recurse"`
-// 	}
-//
-// 	r := httptest.NewRequest(http.MethodPost, "/", nil)
-// 	r.Header.Set("other-val", "x1")
-//
-// 	var data DataType
-//
-// 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
-// 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-// 	require.NoError(t, err)
-// 	// var reqErr RequiredError
-// 	// require.ErrorAs(t, err, &reqErr)
-// 	// require.Equal(t, TestOperationHeader, reqErr.Operation)
-// 	// require.Equal(t, "instruct.DataType", reqErr.FieldName)
-// 	// require.Equal(t, "_", reqErr.TagName)
-// }
+func TestDecodeStructOptionPriority(t *testing.T) {
+	type Inner struct {
+		_       StructOption `instruct:"body,type=xml"`
+		XMLName xml.Name     `instruct:"-" xml:"Inner"`
+		Val     string
+	}
+
+	// struct tag have priority over StructOption
+	type DataType struct {
+		I Inner `instruct:"body,type=json"`
+	}
+
+	type DataType2 struct {
+		I Inner
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"Val": "14"}`))
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+
+	var data DataType
+
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(&testDecodeContext{
+		sliceSplitSeparator: ",",
+		allowReadBody:       true,
+	}))
+	require.NoError(t, err)
+	require.Equal(t, "14", data.I.Val)
+
+	r = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`<Inner><Val>15</Val></Inner>`))
+
+	var data2 DataType2
+
+	err = dec.Decode(r, &data2, GetTestDecoderDecodeOptions(&testDecodeContext{
+		sliceSplitSeparator: ",",
+		allowReadBody:       true,
+	}))
+	require.NoError(t, err)
+	require.Equal(t, "15", data2.I.Val)
+}
 
 func TestDecodeMapTags(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)

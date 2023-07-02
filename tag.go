@@ -134,11 +134,11 @@ func parseStructTagStructOption[IT any, DC DecodeContext](ctx *buildContext, t r
 }
 
 // parseStructTagStructField parses a Tag from a MapTags or a struct tag.
-func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, structType *reflect.Type, field *reflect.StructField,
+func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, field reflect.StructField,
 	lvl level, mapTags MapTags,
 	options *DefaultOptions[IT, DC]) (*Tag, error) {
-	if field != nil && !ctx.skipMapTags {
-		tag, err := parseStructTagMapTags(ctx, *field, lvl, mapTags, options)
+	if !ctx.skipMapTags {
+		tag, err := parseStructTagMapTags(ctx, field, lvl, mapTags, options)
 		if err != nil {
 			return nil, err
 		}
@@ -146,8 +146,8 @@ func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, structType *ref
 			return tag, nil
 		}
 	}
-	if field != nil && !ctx.skipStructField {
-		tag, err := parseStructTagStructField(ctx, *field, lvl, options)
+	if !ctx.skipStructField {
+		tag, err := parseStructTagStructField(ctx, field, lvl, options)
 		if err != nil {
 			return nil, err
 		}
@@ -155,8 +155,8 @@ func parseStructTag[IT any, DC DecodeContext](ctx *buildContext, structType *ref
 			return tag, nil
 		}
 	}
-	if structType != nil && !ctx.skipStructOption {
-		tag, err := parseStructTagStructOption(ctx, *structType, lvl, mapTags, options)
+	if isStruct(field.Type) && !ctx.skipStructOption {
+		tag, err := parseStructTagStructOption(ctx, field.Type, lvl, mapTags, options)
 		if err != nil {
 			return nil, err
 		}
