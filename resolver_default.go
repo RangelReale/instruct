@@ -1,7 +1,6 @@
 package instruct
 
 import (
-	"encoding"
 	"errors"
 	"fmt"
 	"reflect"
@@ -9,28 +8,31 @@ import (
 	"github.com/RangelReale/instruct/coerce"
 )
 
-var (
-	textUnmarshalerType = reflect.TypeOf(new(encoding.TextUnmarshaler)).Elem()
-)
-
+// DefaultResolverValueResolver resolves simple types for a DefaultResolver.
+// It should NOT handle slices, pointers, or maps.
 type DefaultResolverValueResolver interface {
 	// ResolveValue resolve the value to the proper type and return the value.
-	// This method assumes target is never a reflect.Ptr, this should be handled before calling it.
 	ResolveValue(target reflect.Value, value any) error
 }
 
+// DefaultResolverValueResolverCustomType is a custom type handler for a DefaultResolverValueResolver.
+// It should NOT process value using reflection (for performace reasons).
 type DefaultResolverValueResolverCustomType interface {
 	ResolveCustomTypeValue(target reflect.Value, value any) error
 }
 
+// DefaultResolverValueResolverCustomTypeReflect is a custom type handler for a DefaultResolverValueResolver.
+// It SHOULD process value using reflection.
 type DefaultResolverValueResolverCustomTypeReflect interface {
 	ResolveCustomTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
 }
 
+// DefaultResolver is the default Resolver.
 type DefaultResolver struct {
 	valueResolver DefaultResolverValueResolver
 }
 
+// NewDefaultResolver creates a new DefaultResolver without any custom types.
 func NewDefaultResolver(valueResolver DefaultResolverValueResolver) *DefaultResolver {
 	if valueResolver == nil {
 		valueResolver = &DefaultResolverValue{}
@@ -82,6 +84,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
 	}
 
+	// resolve custom types without reflection, like time.Time
 	if target.CanInterface() {
 		for _, customType := range r.CustomTypes {
 			err := customType.ResolveCustomTypeValue(target, value)
@@ -95,6 +98,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		}
 	}
 
+	// resolve primitive types without reflection.
 	switch target.Type().Kind() {
 	case reflect.Bool:
 		c, err := coerce.Bool(value)
@@ -154,6 +158,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		return err
 	}
 
+	// resolve using reflection
 	sourceValue := reflect.ValueOf(value)
 
 	if target.Type().AssignableTo(sourceValue.Type()) {
@@ -169,6 +174,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		return nil
 	}
 
+	// resolve custom types using reflection.
 	for _, customType := range r.CustomTypesReflect {
 		err := customType.ResolveCustomTypeValueReflect(target, sourceValue, value)
 		if err == nil {

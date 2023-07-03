@@ -8,12 +8,16 @@ import (
 	"github.com/RangelReale/instruct/coerce"
 )
 
+var (
+	textUnmarshalerType = reflect.TypeOf(new(encoding.TextUnmarshaler)).Elem()
+)
+
 // DefaultResolverValueResolverTime resolves time.Time values.
 type DefaultResolverValueResolverTime struct {
 	layout string
 }
 
-func NewDefaultResolverValueResolverTypeTime(layout string) *DefaultResolverValueResolverTime {
+func NewDefaultResolverValueResolverTime(layout string) *DefaultResolverValueResolverTime {
 	return &DefaultResolverValueResolverTime{
 		layout: layout,
 	}
@@ -47,7 +51,8 @@ func (d *DefaultResolverValueResolverTimeDuration) ResolveCustomTypeValue(target
 	return ErrCoerceUnknown
 }
 
-// DefaultResolverValueResolverReflectTextUnmarshaler
+// DefaultResolverValueResolverReflectTextUnmarshaler checks if target implements [encoding.TextUnmarshaler]
+// and use it to resolve from string.
 type DefaultResolverValueResolverReflectTextUnmarshaler struct {
 }
 

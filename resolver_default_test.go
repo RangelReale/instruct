@@ -69,7 +69,7 @@ func Test_resolveValue(t *testing.T) {
 func Test_resolve(t *testing.T) {
 	resolver := &DefaultResolverValue{
 		CustomTypes: []DefaultResolverValueResolverCustomType{
-			&DefaultResolverValueResolverTime{layout: time.RFC3339},
+			NewDefaultResolverValueResolverTime(time.RFC3339),
 			&DefaultResolverValueResolverTimeDuration{},
 		},
 	}
