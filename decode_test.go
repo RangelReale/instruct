@@ -149,7 +149,10 @@ func TestDecodePointerPointerField(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	require.Error(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, data.Val)
+	require.NotNil(t, *data.Val)
+	require.Equal(t, "x1", **data.Val)
 }
 
 func TestDecodeRequiredError(t *testing.T) {
