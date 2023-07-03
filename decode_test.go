@@ -120,6 +120,38 @@ func TestDecodeNoContext(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestDecodePointerField(t *testing.T) {
+	type DataType struct {
+		Val *string `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("val", "x1")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.NotNil(t, data.Val)
+	require.Equal(t, "x1", *data.Val)
+}
+
+func TestDecodePointerPointerField(t *testing.T) {
+	type DataType struct {
+		Val **string `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("val", "x1")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
+}
+
 func TestDecodeRequiredError(t *testing.T) {
 	type DataType struct {
 		Val string `instruct:"header"`
