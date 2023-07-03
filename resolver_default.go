@@ -107,9 +107,9 @@ func DefaultResolveValue(target reflect.Value, value any) error {
 		c, err := coerce.String(value)
 		target.SetString(c)
 		return err
-	case reflect.Interface:
-		target.Set(reflect.ValueOf(value))
-		return nil
+		// case reflect.Interface:
+		// 	target.Set(reflect.ValueOf(value))
+		// 	return nil
 	}
 
 	sourceValue := reflect.ValueOf(value)
