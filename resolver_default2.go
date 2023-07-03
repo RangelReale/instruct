@@ -24,21 +24,11 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 		elemType := target.Type().Elem()
 		targetSliceValue := reflect.MakeSlice(reflect.SliceOf(elemType), 0, 0)
 		for i := 0; i < sourceValue.Len(); i++ {
-			sourceElemValue := sourceValue.Index(i)
-			var targetValue reflect.Value
-			if elemType.Kind() == reflect.Ptr {
-				targetValue = reflect.New(elemType.Elem())
-			} else {
-				targetValue = reflect.New(elemType)
-			}
-			if err := r.Resolve(targetValue, sourceElemValue.Interface()); err != nil {
+			targetValue := reflect.New(elemType)
+			if err := r.Resolve(targetValue.Elem(), sourceValue.Index(i).Interface()); err != nil {
 				return err
 			}
-			if elemType.Kind() == reflect.Ptr {
-				targetSliceValue = reflect.Append(targetSliceValue, targetValue)
-			} else {
-				targetSliceValue = reflect.Append(targetSliceValue, reflect.Indirect(targetValue))
-			}
+			targetSliceValue = reflect.Append(targetSliceValue, targetValue.Elem())
 		}
 		target.Set(targetSliceValue)
 		return nil

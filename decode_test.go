@@ -155,6 +155,47 @@ func TestDecodePointerPointerField(t *testing.T) {
 	require.Equal(t, "x1", **data.Val)
 }
 
+func TestDecodeSliceField(t *testing.T) {
+	type DataType struct {
+		Val []int32 `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, []int32{12, 13, 15}, data.Val)
+}
+
+func TestDecodeSlicePointerField(t *testing.T) {
+	type DataType struct {
+		Val []*int `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+
+	v1 := 12
+	v2 := 13
+	v3 := 15
+
+	require.Equal(t, []*int{&v1, &v2, &v3}, data.Val)
+}
+
 func TestDecodeRequiredError(t *testing.T) {
 	type DataType struct {
 		Val string `instruct:"header"`
