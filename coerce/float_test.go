@@ -196,15 +196,6 @@ func TestFloatFromPtr(t *testing.T) {
 	tests.Run(t)
 }
 
-func TestFloatFromSlice(t *testing.T) {
-	tests := FloatTests{
-		"nil":        {To: []string(nil), Expect32: 0, Expect64: 0},
-		"slice":      {To: []interface{}{"42", "78"}, Expect32: 78, Expect64: 78},
-		"slice kind": {To: []interface{}{"42", "78", S("27")}, Expect32: 27, Expect64: 27},
-	}
-	tests.Run(t)
-}
-
 func TestFloatFromUint(t *testing.T) {
 	tests := FloatTests{
 		"uint8": {

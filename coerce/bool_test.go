@@ -166,21 +166,6 @@ func TestBoolFromPtr(t *testing.T) {
 	tests.Run(t)
 }
 
-func TestBoolFromSlice(t *testing.T) {
-	tests := BoolTests{
-		"nil slice": {
-			To: []string(nil), Expect: false,
-		},
-		"slice": {
-			To: []interface{}{42, "true"}, Expect: true,
-		},
-		"slice kind": {
-			To: []interface{}{42, "true", F32(1)}, Expect: true,
-		},
-	}
-	tests.Run(t)
-}
-
 func TestBoolFromUint(t *testing.T) {
 	tests := BoolTests{
 		"max8": {

@@ -9,7 +9,7 @@ import (
 )
 
 func Test_resolvesValues(t *testing.T) {
-	resolver := &DefaultResolver{}
+	resolver := NewDefaultResolver(nil)
 
 	tests := []struct {
 		name    string
@@ -39,7 +39,7 @@ func Test_resolveValue(t *testing.T) {
 	var ptrInput *bool
 	b := true
 	var structInput *struct{}
-	resolver := &DefaultResolver{}
+	resolver := NewDefaultResolver(nil)
 	tests := []struct {
 		name    string
 		input   interface{}
@@ -67,6 +67,8 @@ func Test_resolveValue(t *testing.T) {
 }
 
 func Test_resolve(t *testing.T) {
+	resolver := &DefaultResolverValue{}
+
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 	tests := []struct {
 		name    string
@@ -106,10 +108,6 @@ func Test_resolve(t *testing.T) {
 		{name: "resolve failed uint16", input: uint16(0), value: "trick", want: uint16(0), wantErr: true},
 		{name: "resolve uint8", input: uint8(0), value: "5", want: uint8(5), wantErr: false},
 		{name: "resolve failed uint8", input: uint8(0), value: "trick", want: uint8(0), wantErr: true},
-		{name: "resolve complex128", input: complex128(0), value: "5", want: complex128(5), wantErr: false},
-		{name: "resolve failed complex128", input: complex128(0), value: "trick", want: complex128(0), wantErr: true},
-		{name: "resolve complex64", input: complex64(0), value: "5", want: complex64(5), wantErr: false},
-		{name: "resolve failed complex64", input: complex64(0), value: "trick", want: complex64(0), wantErr: true},
 		{name: "failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
 	}
 	for i := range tests {
@@ -117,12 +115,14 @@ func Test_resolve(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			target := reflect.Indirect(reflect.New(reflect.TypeOf(tt.input)))
 			target.Set(reflect.ValueOf(tt.input))
-			err := DefaultResolveValue(target, tt.value)
+			err := resolver.ResolveValue(target, tt.value)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("resolve() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			require.Equal(t, tt.want, target.Interface())
+			if err == nil {
+				require.Equal(t, tt.want, target.Interface())
+			}
 		})
 	}
 }

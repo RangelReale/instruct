@@ -7,7 +7,19 @@ import (
 	"github.com/RangelReale/instruct/coerce"
 )
 
+type DefaultResolverValueResolver interface {
+	ResolveValue(target reflect.Value, value any) error
+}
+
 type DefaultResolver struct {
+	valueResolver DefaultResolverValueResolver
+}
+
+func NewDefaultResolver(valueResolver DefaultResolverValueResolver) *DefaultResolver {
+	if valueResolver == nil {
+		valueResolver = &DefaultResolverValue{}
+	}
+	return &DefaultResolver{valueResolver: valueResolver}
 }
 
 func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
@@ -41,11 +53,14 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 		return nil
 	}
 
-	return DefaultResolveValue(target, value)
+	return r.valueResolver.ResolveValue(target, value)
 }
 
-// DefaultResolveValue resolve the value to the proper type and return the value.
-func DefaultResolveValue(target reflect.Value, value any) error {
+type DefaultResolverValue struct {
+}
+
+// ResolveValue resolve the value to the proper type and return the value.
+func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) error {
 	if !target.CanSet() {
 		return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
 	}
@@ -127,6 +142,6 @@ func DefaultResolveValue(target reflect.Value, value any) error {
 		return nil
 	}
 
-	return fmt.Errorf("cannot coerce source of type '%T' into target of type '%s'",
-		value, target.Type().Kind())
+	return fmt.Errorf("%w: cannot coerce source of type '%T' into target of type '%s'",
+		ErrCoerceUnknown, value, target.Type().Kind())
 }

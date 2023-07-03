@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrCoerce = coerce.ErrUnsupported
+	ErrCoerce        = coerce.ErrUnsupported
+	ErrCoerceUnknown = fmt.Errorf("coerce: unknown types")
 )
 
 // An ValuesNotUsedError is returned when some values were not used.

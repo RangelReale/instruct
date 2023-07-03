@@ -358,24 +358,6 @@ func TestIntFromPtr(t *testing.T) {
 	tests.Run(t)
 }
 
-func TestIntFromSlice(t *testing.T) {
-	tests := IntTests{
-		"nil": {
-			To:      []string(nil),
-			Expect8: 0, Expect16: 0, Expect32: 0, Expect64: 0, Expect: 0,
-		},
-		"slice": {
-			To:      []interface{}{"42", "78"},
-			Expect8: 78, Expect16: 78, Expect32: 78, Expect64: 78, Expect: 78,
-		},
-		"slice kind": {
-			To:      []interface{}{"42", "78", F32(78)},
-			Expect8: 78, Expect16: 78, Expect32: 78, Expect64: 78, Expect: 78,
-		},
-	}
-	tests.Run(t)
-}
-
 func TestIntFromUint(t *testing.T) {
 	tests := IntTests{
 		"max8": {

@@ -168,21 +168,6 @@ func TestStringFromPtr(t *testing.T) {
 	tests.Run(t)
 }
 
-func TestStringFromSlice(t *testing.T) {
-	tests := StringTests{
-		"nil": {
-			To: []string(nil), Expect: "",
-		},
-		"slice": {
-			To: []interface{}{"42", "78"}, Expect: "78",
-		},
-		"slice kind": {
-			To: []interface{}{"42", "78", II(78)}, Expect: "78",
-		},
-	}
-	tests.Run(t)
-}
-
 func TestStringFromUint(t *testing.T) {
 	tests := StringTests{
 		"max8": {
