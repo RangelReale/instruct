@@ -67,7 +67,11 @@ func Test_resolveValue(t *testing.T) {
 }
 
 func Test_resolve(t *testing.T) {
-	resolver := &DefaultResolverValue{}
+	resolver := &DefaultResolverValue{
+		CustomTypes: []DefaultResolverValueResolverCustomType{
+			&DefaultResolverValueResolverTime{layout: time.RFC3339},
+		},
+	}
 
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 	tests := []struct {

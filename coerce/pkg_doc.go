@@ -1,17 +1,19 @@
 // Package coerce provides loose type coercion and assignment into native Go types.
 //
-// Primitive Types
+// # Primitive Types
 //
 // This package considers the following types to be primitive types:
+//
 //	bool
 //	float32 float64
 //	int8 int16 int32 int64 int
 //	uint8 uint16 uint32 uint64 uint
 //	string
 //
-// Coercion Logic
+// # Coercion Logic
 //
 // All coercion functions use the same basic logic to coerce an incoming value v:
+//
 //	for {
 //		v is primitive
 //			return coerced value or error
@@ -21,9 +23,6 @@
 //		v is a pointer
 //			// dereference v and try again
 //			v = *v; continue
-//		v is a slice
-//			// try again with last slice element
-//			v = v[len(v)-1]; continue
 //		ErrUnsupported
 //	}
 //
@@ -41,14 +40,14 @@
 //
 // All other types for v (e.g. chan, map, func, etc) return a zero value and ErrUnsupported.
 //
-// Overflow
+// # Overflow
 //
 // During numeric coercions this package checks incoming values against the minimum and maximum value
 // for the target type.  If the incoming value is out of range for the target type ErrOverflow is returned.
 //
 // Otherwise the coercion is made with type conversion.
 //
-// String Parsing
+// # String Parsing
 //
 // Where necessary this package will call into strconv to parse values for bool, int, float, or uint.
 //

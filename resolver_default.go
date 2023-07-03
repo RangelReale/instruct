@@ -2,6 +2,7 @@ package instruct
 
 import (
 	"encoding"
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -13,7 +14,14 @@ var (
 )
 
 type DefaultResolverValueResolver interface {
+	// ResolveValue resolve the value to the proper type and return the value.
+	// This method assumes target is never a reflect.Ptr, this should be handled before calling it.
 	ResolveValue(target reflect.Value, value any) error
+}
+
+type DefaultResolverValueResolverCustomType interface {
+	ResolveCustomTypeValue(target reflect.Value, value any) error
+	ResolveCustomTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
 }
 
 type DefaultResolver struct {
@@ -62,9 +70,9 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 }
 
 type DefaultResolverValue struct {
+	CustomTypes []DefaultResolverValueResolverCustomType
 }
 
-// ResolveValue resolve the value to the proper type and return the value.
 func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) error {
 	if !target.CanSet() {
 		return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
@@ -127,9 +135,19 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		c, err := coerce.String(value)
 		target.SetString(c)
 		return err
-		// case reflect.Interface:
-		// 	target.Set(reflect.ValueOf(value))
-		// 	return nil
+	}
+
+	if target.CanInterface() {
+		for _, customType := range r.CustomTypes {
+			err := customType.ResolveCustomTypeValue(target, value)
+			if err == nil {
+				return nil
+			}
+			if errors.Is(err, ErrCoerceUnknown) {
+				continue
+			}
+			return err
+		}
 	}
 
 	// if target.CanInterface() {
@@ -165,18 +183,18 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		return nil
 	}
 
-	switch sourceValue.Type().Kind() {
-	case reflect.String:
-		xtarget := reflect.New(target.Type())
-		if xtarget.Type().Implements(textUnmarshalerType) {
-			um := xtarget.Interface().(encoding.TextUnmarshaler)
-			if err := um.UnmarshalText([]byte(value.(string))); err != nil {
-				return err
-			}
-			target.Set(xtarget.Elem())
-			return nil
-		}
-	}
+	// switch sourceValue.Type().Kind() {
+	// case reflect.String:
+	// 	xtarget := reflect.New(target.Type())
+	// 	if xtarget.Type().Implements(textUnmarshalerType) {
+	// 		um := xtarget.Interface().(encoding.TextUnmarshaler)
+	// 		if err := um.UnmarshalText([]byte(value.(string))); err != nil {
+	// 			return err
+	// 		}
+	// 		target.Set(xtarget.Elem())
+	// 		return nil
+	// 	}
+	// }
 
 	return fmt.Errorf("%w: cannot coerce source of type '%T' into target of type '%s'",
 		ErrCoerceUnknown, value, target.Type().Kind())

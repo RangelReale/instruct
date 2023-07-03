@@ -53,8 +53,6 @@ func Bool(v interface{}) (bool, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			return reflect.ValueOf(v).Bool(), nil

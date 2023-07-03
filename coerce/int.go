@@ -97,8 +97,6 @@ func Int(v interface{}) (int, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			if reflect.ValueOf(v).Bool() {
@@ -226,8 +224,6 @@ func Int8(v interface{}) (int8, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			if reflect.ValueOf(v).Bool() {
@@ -360,8 +356,6 @@ func Int16(v interface{}) (int16, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			if reflect.ValueOf(v).Bool() {
@@ -485,8 +479,6 @@ func Int32(v interface{}) (int32, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			if reflect.ValueOf(v).Bool() {
@@ -604,8 +596,6 @@ func Int64(v interface{}) (int64, error) {
 		//		convert to actual primitive and try again
 		// - T.Kind() is a pointer
 		//		dereference pointer and try again
-		// - T.Kind() is a slice
-		//		pick last element and try again
 		switch T.Kind() {
 		case reflect.Bool:
 			if reflect.ValueOf(v).Bool() {
