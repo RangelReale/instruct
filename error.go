@@ -3,6 +3,12 @@ package instruct
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/RangelReale/instruct/coerce"
+)
+
+var (
+	ErrCoerce = coerce.ErrUnsupported
 )
 
 // An ValuesNotUsedError is returned when some values were not used.

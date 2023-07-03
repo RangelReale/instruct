@@ -80,13 +80,6 @@ func Bool(v interface{}) (bool, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return false, nil
 		}
 		//
 		return false, fmt.Errorf("%w; coerce %v to bool", ErrUnsupported, v)

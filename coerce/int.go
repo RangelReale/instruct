@@ -137,13 +137,6 @@ func Int(v interface{}) (int, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to int", ErrUnsupported, v)
@@ -407,13 +400,6 @@ func Int16(v interface{}) (int16, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to int16", ErrUnsupported, v)
@@ -658,13 +644,6 @@ func Int64(v interface{}) (int64, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to int64", ErrUnsupported, v)

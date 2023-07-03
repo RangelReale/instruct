@@ -448,7 +448,7 @@ func TestDecodeMapTagsNoDecodeAsDefault(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestDecodeManual(t *testing.T) {
+func TestDecodePointerValue(t *testing.T) {
 	type DataType struct {
 		Val string `instruct:"manual"`
 	}
@@ -464,4 +464,20 @@ func TestDecodeManual(t *testing.T) {
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.NoError(t, err)
+}
+
+func TestDecodeSliceToNonSliceError(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"manual"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
+		"val": []string{"A", "B"},
+	}))
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.ErrorIs(t, err, ErrCoerce)
 }

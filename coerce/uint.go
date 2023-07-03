@@ -135,13 +135,6 @@ func Uint(v interface{}) (uint, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to uint", ErrUnsupported, v)
@@ -404,13 +397,6 @@ func Uint16(v interface{}) (uint16, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to uint16", ErrUnsupported, v)
@@ -658,13 +644,6 @@ func Uint64(v interface{}) (uint64, error) {
 			v = rv.Interface()
 			continue
 
-		case reflect.Slice:
-			rv := reflect.ValueOf(v)
-			if n := rv.Len(); n > 0 {
-				v = rv.Index(n - 1).Interface()
-				continue
-			}
-			return 0, nil
 		}
 		//
 		return 0, fmt.Errorf("%w; coerce %v to uint64", ErrUnsupported, v)
