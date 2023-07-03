@@ -50,7 +50,7 @@ func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 		defaultMapTags:     &mapTagsList{},
 		FieldNameMapper:    DefaultFieldNameMapper,
 		structInfoProvider: DefaultStructInfoProvider[IT, DC]{},
-		Resolver:           resolver.NewDefaultResolver(nil),
+		Resolver:           resolver.NewResolver(nil),
 	}
 }
 

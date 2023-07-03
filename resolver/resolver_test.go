@@ -9,7 +9,7 @@ import (
 )
 
 func Test_resolvesValues(t *testing.T) {
-	resolver := NewDefaultResolver(nil)
+	resolver := NewResolver(nil)
 
 	tests := []struct {
 		name    string
@@ -39,7 +39,7 @@ func Test_resolveValue(t *testing.T) {
 	var ptrInput *bool
 	b := true
 	var structInput *struct{}
-	resolver := NewDefaultResolver(nil)
+	resolver := NewResolver(nil)
 	tests := []struct {
 		name    string
 		input   interface{}
@@ -68,9 +68,9 @@ func Test_resolveValue(t *testing.T) {
 
 func Test_resolve(t *testing.T) {
 	resolver := &DefaultResolverValue{
-		CustomTypes: []DefaultResolverTypeValueResolver{
-			NewDefaultResolverValueResolverTime(time.RFC3339),
-			&DefaultResolverValueResolverTimeDuration{},
+		CustomTypes: []TypeValueResolver{
+			NewValueResolverTime(time.RFC3339),
+			&ValueResolverTimeDuration{},
 		},
 	}
 
@@ -134,8 +134,8 @@ func Test_resolve(t *testing.T) {
 
 func Test_resolve_textUnmarshaller(t *testing.T) {
 	resolver := &DefaultResolverValue{
-		CustomTypesReflect: []DefaultResolverTypeValueResolverReflect{
-			&DefaultResolverValueResolverReflectTextUnmarshaler{},
+		CustomTypesReflect: []TypeValueResolverReflect{
+			&ValueResolverReflectTextUnmarshaler{},
 		},
 	}
 

@@ -9,39 +9,39 @@ import (
 	"github.com/RangelReale/instruct/types"
 )
 
-// DefaultResolver is the default Resolver.
-type DefaultResolver struct {
-	valueResolver DefaultResolverValueResolver
+// Resolver is the default Resolver.
+type Resolver struct {
+	valueResolver ValueResolver
 }
 
-// DefaultResolverValueResolver resolves simple types for a DefaultResolver.
+// ValueResolver resolves simple types for a Resolver.
 // It should NOT handle slices, pointers, or maps.
-type DefaultResolverValueResolver interface {
+type ValueResolver interface {
 	// ResolveValue resolve the value to the proper type and return the value.
 	ResolveValue(target reflect.Value, value any) error
 }
 
-// DefaultResolverTypeValueResolver is a custom type handler for a DefaultResolverValueResolver.
+// TypeValueResolver is a custom type handler for a ValueResolver.
 // It should NOT process value using reflection (for performance reasons).
-type DefaultResolverTypeValueResolver interface {
+type TypeValueResolver interface {
 	ResolveTypeValue(target reflect.Value, value any) error
 }
 
-// DefaultResolverTypeValueResolverReflect is a custom type handler for a DefaultResolverValueResolver.
+// TypeValueResolverReflect is a custom type handler for a ValueResolver.
 // It SHOULD process value using reflection.
-type DefaultResolverTypeValueResolverReflect interface {
+type TypeValueResolverReflect interface {
 	ResolveTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
 }
 
-// NewDefaultResolver creates a new DefaultResolver without any custom types.
-func NewDefaultResolver(valueResolver DefaultResolverValueResolver) *DefaultResolver {
+// NewResolver creates a new Resolver without any custom types.
+func NewResolver(valueResolver ValueResolver) *Resolver {
 	if valueResolver == nil {
 		valueResolver = &DefaultResolverValue{}
 	}
-	return &DefaultResolver{valueResolver: valueResolver}
+	return &Resolver{valueResolver: valueResolver}
 }
 
-func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
+func (r Resolver) Resolve(target reflect.Value, value any) error {
 	if target.Kind() == reflect.Slice {
 		if !target.CanSet() {
 			return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
@@ -76,8 +76,8 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 }
 
 type DefaultResolverValue struct {
-	CustomTypes        []DefaultResolverTypeValueResolver
-	CustomTypesReflect []DefaultResolverTypeValueResolverReflect
+	CustomTypes        []TypeValueResolver
+	CustomTypesReflect []TypeValueResolverReflect
 }
 
 func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) error {
