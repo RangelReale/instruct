@@ -21,6 +21,9 @@ type DefaultResolverValueResolver interface {
 
 type DefaultResolverValueResolverCustomType interface {
 	ResolveCustomTypeValue(target reflect.Value, value any) error
+}
+
+type DefaultResolverValueResolverCustomTypeReflect interface {
 	ResolveCustomTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
 }
 
@@ -70,8 +73,8 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 }
 
 type DefaultResolverValue struct {
-	CustomTypes              []DefaultResolverValueResolverCustomType
-	CheckTypeTextUnmarshaler bool
+	CustomTypes        []DefaultResolverValueResolverCustomType
+	CustomTypesReflect []DefaultResolverValueResolverCustomTypeReflect
 }
 
 func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) error {
@@ -166,22 +169,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		return nil
 	}
 
-	switch sourceValue.Type().Kind() {
-	case reflect.String:
-		if r.CheckTypeTextUnmarshaler {
-			if reflect.PointerTo(target.Type()).Implements(textUnmarshalerType) {
-				xtarget := reflect.New(target.Type())
-				um := xtarget.Interface().(encoding.TextUnmarshaler)
-				if err := um.UnmarshalText([]byte(value.(string))); err != nil {
-					return err
-				}
-				target.Set(xtarget.Elem())
-				return nil
-			}
-		}
-	}
-
-	for _, customType := range r.CustomTypes {
+	for _, customType := range r.CustomTypesReflect {
 		err := customType.ResolveCustomTypeValueReflect(target, sourceValue, value)
 		if err == nil {
 			return nil

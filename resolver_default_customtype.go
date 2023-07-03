@@ -1,6 +1,7 @@
 package instruct
 
 import (
+	"encoding"
 	"reflect"
 	"time"
 
@@ -30,11 +31,6 @@ func (d *DefaultResolverValueResolverTime) ResolveCustomTypeValue(target reflect
 	return ErrCoerceUnknown
 }
 
-func (d *DefaultResolverValueResolverTime) ResolveCustomTypeValueReflect(target reflect.Value,
-	sourceValue reflect.Value, value any) error {
-	return ErrCoerceUnknown
-}
-
 // DefaultResolverValueResolverTimeDuration resolves time.Duration values.
 type DefaultResolverValueResolverTimeDuration struct {
 }
@@ -51,7 +47,24 @@ func (d *DefaultResolverValueResolverTimeDuration) ResolveCustomTypeValue(target
 	return ErrCoerceUnknown
 }
 
-func (d *DefaultResolverValueResolverTimeDuration) ResolveCustomTypeValueReflect(target reflect.Value,
+// DefaultResolverValueResolverReflectTextUnmarshaler
+type DefaultResolverValueResolverReflectTextUnmarshaler struct {
+}
+
+func (d *DefaultResolverValueResolverReflectTextUnmarshaler) ResolveCustomTypeValueReflect(target reflect.Value,
 	sourceValue reflect.Value, value any) error {
+	switch sourceValue.Type().Kind() {
+	case reflect.String:
+		if reflect.PointerTo(target.Type()).Implements(textUnmarshalerType) {
+			xtarget := reflect.New(target.Type())
+			um := xtarget.Interface().(encoding.TextUnmarshaler)
+			if err := um.UnmarshalText([]byte(value.(string))); err != nil {
+				return err
+			}
+			target.Set(xtarget.Elem())
+			return nil
+		}
+	}
+
 	return ErrCoerceUnknown
 }

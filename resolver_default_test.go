@@ -134,7 +134,9 @@ func Test_resolve(t *testing.T) {
 
 func Test_resolve_textUnmarshaller(t *testing.T) {
 	resolver := &DefaultResolverValue{
-		CheckTypeTextUnmarshaler: true,
+		CustomTypesReflect: []DefaultResolverValueResolverCustomTypeReflect{
+			&DefaultResolverValueResolverReflectTextUnmarshaler{},
+		},
 	}
 
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
