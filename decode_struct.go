@@ -116,20 +116,6 @@ func (d *Decoder[IT, DC]) executeOperation(field reflect.Value, sifield *structI
 		if err = d.options.Resolver.Resolve(field, value); err != nil {
 			return false, fmt.Errorf("error resolving field '%s': %w", sifield.fullFieldName(), err)
 		}
-
-		// // convert the value from string/[]string to the struct field type.
-		// switch xvalue := value.(type) {
-		// case string:
-		// 	if err = resolveValue(d.options.Resolver, field, sifield.field.Type, xvalue); err != nil {
-		// 		return false, err
-		// 	}
-		// case []string:
-		// 	if err = resolveValues(d.options.Resolver, field, sifield.field.Type, xvalue); err != nil {
-		// 		return false, err
-		// 	}
-		// default:
-		// 	return false, fmt.Errorf("unknown decoded value type '%T' for field '%s'", value, sifield.field.Name)
-		// }
 	}
 
 	return dataWasSet, nil
