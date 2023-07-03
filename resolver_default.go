@@ -1,10 +1,15 @@
 package instruct
 
 import (
+	"encoding"
 	"fmt"
 	"reflect"
 
 	"github.com/RangelReale/instruct/coerce"
+)
+
+var (
+	textUnmarshalerType = reflect.TypeOf(new(encoding.TextUnmarshaler)).Elem()
 )
 
 type DefaultResolverValueResolver interface {
@@ -127,6 +132,24 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		// 	return nil
 	}
 
+	// if target.CanInterface() {
+	// 	switch target.Interface().(type) {
+	// 	case time.Time:
+	// 		switch v := value.(type) {
+	// 		case time.Time:
+	// 			target.Set(reflect.ValueOf(v))
+	// 			return nil
+	// 		case string:
+	// 			t, err := time.Parse(time.RFC3339, v)
+	// 			if err != nil {
+	// 				return err
+	// 			}
+	// 			target.Set(reflect.ValueOf(t))
+	// 			return nil
+	// 		}
+	// 	}
+	// }
+
 	sourceValue := reflect.ValueOf(value)
 
 	if target.Type().AssignableTo(sourceValue.Type()) {
@@ -140,6 +163,19 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		// (slices are handled manually)
 		target.Set(sourceValue.Convert(target.Type()))
 		return nil
+	}
+
+	switch sourceValue.Type().Kind() {
+	case reflect.String:
+		xtarget := reflect.New(target.Type())
+		if xtarget.Type().Implements(textUnmarshalerType) {
+			um := xtarget.Interface().(encoding.TextUnmarshaler)
+			if err := um.UnmarshalText([]byte(value.(string))); err != nil {
+				return err
+			}
+			target.Set(xtarget.Elem())
+			return nil
+		}
 	}
 
 	return fmt.Errorf("%w: cannot coerce source of type '%T' into target of type '%s'",
