@@ -169,8 +169,8 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 	switch sourceValue.Type().Kind() {
 	case reflect.String:
 		if r.CheckTypeTextUnmarshaler {
-			xtarget := reflect.New(target.Type())
-			if xtarget.Type().Implements(textUnmarshalerType) {
+			if reflect.PointerTo(target.Type()).Implements(textUnmarshalerType) {
+				xtarget := reflect.New(target.Type())
 				um := xtarget.Interface().(encoding.TextUnmarshaler)
 				if err := um.UnmarshalText([]byte(value.(string))); err != nil {
 					return err

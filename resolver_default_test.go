@@ -131,3 +131,16 @@ func Test_resolve(t *testing.T) {
 		})
 	}
 }
+
+func Test_resolve_textUnmarshaller(t *testing.T) {
+	resolver := &DefaultResolverValue{
+		CheckTypeTextUnmarshaler: true,
+	}
+
+	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
+
+	target := reflect.Indirect(reflect.New(reflect.TypeOf(time.Time{})))
+	err := resolver.ResolveValue(target, "2021-10-22T11:01:00Z")
+	require.NoError(t, err)
+	require.Equal(t, t1, target.Interface())
+}
