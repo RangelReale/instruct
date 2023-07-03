@@ -22,6 +22,12 @@ func GetTestDecoderOptions() DefaultOptions[*http.Request, TestDecodeContext] {
 	return optns
 }
 
+func GetTestDecoderOptionsWithManual(values map[string]any) DefaultOptions[*http.Request, TestDecodeContext] {
+	optns := GetTestDecoderOptions()
+	optns.DecodeOperations[TestOperationManual] = &TestDecodeOperationManual{values}
+	return optns
+}
+
 func GetTestDecoderDecodeOptions(ctx TestDecodeContext) DecodeOptions[*http.Request, TestDecodeContext] {
 	if ctx == nil {
 		ctx = &testDecodeContext{
@@ -81,6 +87,7 @@ const (
 	TestOperationQuery  string = "query"
 	TestOperationHeader        = "header"
 	TestOperationBody          = "body"
+	TestOperationManual        = "manual"
 )
 
 type TestDecodeOperationQuery struct {
@@ -223,4 +230,17 @@ func decodeBody(ctx TestDecodeContext, r *http.Request, data interface{}, tag *T
 	}
 
 	return false, nil
+}
+
+type TestDecodeOperationManual struct {
+	Values map[string]any
+}
+
+func (d *TestDecodeOperationManual) Decode(ctx TestDecodeContext, r *http.Request, field reflect.Value,
+	typ reflect.Type, tag *Tag) (bool, any, error) {
+	if v, ok := d.Values[tag.Name]; ok {
+		return true, v, nil
+	}
+
+	return false, nil, nil
 }

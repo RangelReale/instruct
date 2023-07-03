@@ -447,3 +447,24 @@ func TestDecodeMapTagsNoDecodeAsDefault(t *testing.T) {
 	err := dec.Decode(r, &data, decOpt)
 	require.Error(t, err)
 }
+
+func TestDecodeManual(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"manual"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	var data DataType
+
+	mval := 45
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
+		"val": &mval,
+	}))
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+
+	// var target *InvalidDecodeError
+	// require.ErrorAs(t, err, &target)
+}
