@@ -464,7 +464,4 @@ func TestDecodeManual(t *testing.T) {
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.NoError(t, err)
-
-	// var target *InvalidDecodeError
-	// require.ErrorAs(t, err, &target)
 }
