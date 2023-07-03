@@ -23,7 +23,7 @@ func NewDefaultResolverValueResolverTime(layout string) *DefaultResolverValueRes
 	}
 }
 
-func (d *DefaultResolverValueResolverTime) ResolveCustomTypeValue(target reflect.Value, value any) error {
+func (d *DefaultResolverValueResolverTime) ResolveTypeValue(target reflect.Value, value any) error {
 	if target.CanInterface() {
 		switch target.Interface().(type) {
 		case time.Time:
@@ -39,7 +39,7 @@ func (d *DefaultResolverValueResolverTime) ResolveCustomTypeValue(target reflect
 type DefaultResolverValueResolverTimeDuration struct {
 }
 
-func (d *DefaultResolverValueResolverTimeDuration) ResolveCustomTypeValue(target reflect.Value, value any) error {
+func (d *DefaultResolverValueResolverTimeDuration) ResolveTypeValue(target reflect.Value, value any) error {
 	if target.CanInterface() {
 		switch target.Interface().(type) {
 		case time.Duration:
@@ -56,7 +56,7 @@ func (d *DefaultResolverValueResolverTimeDuration) ResolveCustomTypeValue(target
 type DefaultResolverValueResolverReflectTextUnmarshaler struct {
 }
 
-func (d *DefaultResolverValueResolverReflectTextUnmarshaler) ResolveCustomTypeValueReflect(target reflect.Value,
+func (d *DefaultResolverValueResolverReflectTextUnmarshaler) ResolveTypeValueReflect(target reflect.Value,
 	sourceValue reflect.Value, value any) error {
 	switch sourceValue.Type().Kind() {
 	case reflect.String:

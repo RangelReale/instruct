@@ -68,7 +68,7 @@ func Test_resolveValue(t *testing.T) {
 
 func Test_resolve(t *testing.T) {
 	resolver := &DefaultResolverValue{
-		CustomTypes: []DefaultResolverValueResolverCustomType{
+		CustomTypes: []DefaultResolverTypeValueResolver{
 			NewDefaultResolverValueResolverTime(time.RFC3339),
 			&DefaultResolverValueResolverTimeDuration{},
 		},
@@ -134,7 +134,7 @@ func Test_resolve(t *testing.T) {
 
 func Test_resolve_textUnmarshaller(t *testing.T) {
 	resolver := &DefaultResolverValue{
-		CustomTypesReflect: []DefaultResolverValueResolverCustomTypeReflect{
+		CustomTypesReflect: []DefaultResolverTypeValueResolverReflect{
 			&DefaultResolverValueResolverReflectTextUnmarshaler{},
 		},
 	}

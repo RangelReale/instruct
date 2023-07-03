@@ -8,6 +8,11 @@ import (
 	"github.com/RangelReale/instruct/coerce"
 )
 
+// DefaultResolver is the default Resolver.
+type DefaultResolver struct {
+	valueResolver DefaultResolverValueResolver
+}
+
 // DefaultResolverValueResolver resolves simple types for a DefaultResolver.
 // It should NOT handle slices, pointers, or maps.
 type DefaultResolverValueResolver interface {
@@ -15,21 +20,16 @@ type DefaultResolverValueResolver interface {
 	ResolveValue(target reflect.Value, value any) error
 }
 
-// DefaultResolverValueResolverCustomType is a custom type handler for a DefaultResolverValueResolver.
-// It should NOT process value using reflection (for performace reasons).
-type DefaultResolverValueResolverCustomType interface {
-	ResolveCustomTypeValue(target reflect.Value, value any) error
+// DefaultResolverTypeValueResolver is a custom type handler for a DefaultResolverValueResolver.
+// It should NOT process value using reflection (for performance reasons).
+type DefaultResolverTypeValueResolver interface {
+	ResolveTypeValue(target reflect.Value, value any) error
 }
 
-// DefaultResolverValueResolverCustomTypeReflect is a custom type handler for a DefaultResolverValueResolver.
+// DefaultResolverTypeValueResolverReflect is a custom type handler for a DefaultResolverValueResolver.
 // It SHOULD process value using reflection.
-type DefaultResolverValueResolverCustomTypeReflect interface {
-	ResolveCustomTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
-}
-
-// DefaultResolver is the default Resolver.
-type DefaultResolver struct {
-	valueResolver DefaultResolverValueResolver
+type DefaultResolverTypeValueResolverReflect interface {
+	ResolveTypeValueReflect(target reflect.Value, sourceValue reflect.Value, value any) error
 }
 
 // NewDefaultResolver creates a new DefaultResolver without any custom types.
@@ -75,8 +75,8 @@ func (r DefaultResolver) Resolve(target reflect.Value, value any) error {
 }
 
 type DefaultResolverValue struct {
-	CustomTypes        []DefaultResolverValueResolverCustomType
-	CustomTypesReflect []DefaultResolverValueResolverCustomTypeReflect
+	CustomTypes        []DefaultResolverTypeValueResolver
+	CustomTypesReflect []DefaultResolverTypeValueResolverReflect
 }
 
 func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) error {
@@ -87,7 +87,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 	// resolve custom types without reflection, like time.Time
 	if target.CanInterface() {
 		for _, customType := range r.CustomTypes {
-			err := customType.ResolveCustomTypeValue(target, value)
+			err := customType.ResolveTypeValue(target, value)
 			if err == nil {
 				return nil
 			}
@@ -98,7 +98,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		}
 	}
 
-	// resolve primitive types without reflection.
+	// resolve primitive types without reflection
 	switch target.Type().Kind() {
 	case reflect.Bool:
 		c, err := coerce.Bool(value)
@@ -161,6 +161,20 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 	// resolve using reflection
 	sourceValue := reflect.ValueOf(value)
 
+	// resolve custom types using reflection.
+	for _, customType := range r.CustomTypesReflect {
+		err := customType.ResolveTypeValueReflect(target, sourceValue, value)
+		if err == nil {
+			return nil
+		}
+		if errors.Is(err, ErrCoerceUnknown) {
+			continue
+		}
+		return err
+	}
+
+	// check if types are directly assignable
+
 	if target.Type().AssignableTo(sourceValue.Type()) {
 		// the source can be directly assigned to the target
 		target.Set(sourceValue)
@@ -172,18 +186,6 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		// (slices are handled manually)
 		target.Set(sourceValue.Convert(target.Type()))
 		return nil
-	}
-
-	// resolve custom types using reflection.
-	for _, customType := range r.CustomTypesReflect {
-		err := customType.ResolveCustomTypeValueReflect(target, sourceValue, value)
-		if err == nil {
-			return nil
-		}
-		if errors.Is(err, ErrCoerceUnknown) {
-			continue
-		}
-		return err
 	}
 
 	return fmt.Errorf("%w: cannot coerce source of type '%T' into target of type '%s'",
