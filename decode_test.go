@@ -480,5 +480,21 @@ func TestDecodeSliceToNonSliceError(t *testing.T) {
 		"val": []string{"A", "B"},
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	require.ErrorIs(t, err, types.ErrCoerce)
+	require.ErrorIs(t, err, types.ErrCoerceUnsupported)
+}
+
+func TestDecodeMapFieldNotSupported(t *testing.T) {
+	type DataType struct {
+		Val map[string]bool `instruct:"manual"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
+		"val": "x",
+	}))
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.ErrorIs(t, err, types.ErrCoerceUnknown)
 }
