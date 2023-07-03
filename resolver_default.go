@@ -26,6 +26,10 @@ func DefaultResolve(target reflect.Value, value any) error {
 		return nil
 	}
 
+	if !targetValue.CanSet() {
+		return fmt.Errorf("cannot set field value")
+	}
+
 	switch targetType.Kind() {
 	case reflect.Bool:
 		c, err := coerce.Bool(value)
