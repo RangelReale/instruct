@@ -3,6 +3,8 @@ package instruct
 import (
 	"reflect"
 	"strings"
+
+	"github.com/RangelReale/instruct/resolver"
 )
 
 // FieldNameMapper maps a struct field name to the target field name.
@@ -48,7 +50,7 @@ func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 		defaultMapTags:     &mapTagsList{},
 		FieldNameMapper:    DefaultFieldNameMapper,
 		structInfoProvider: DefaultStructInfoProvider[IT, DC]{},
-		Resolver:           NewDefaultResolver(nil),
+		Resolver:           resolver.NewDefaultResolver(nil),
 	}
 }
 

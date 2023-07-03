@@ -1,4 +1,4 @@
-package instruct
+package resolver
 
 import (
 	"encoding"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/RangelReale/instruct/coerce"
+	"github.com/RangelReale/instruct/types"
 )
 
 var (
@@ -32,7 +33,7 @@ func (d *DefaultResolverValueResolverTime) ResolveTypeValue(target reflect.Value
 			return err
 		}
 	}
-	return ErrCoerceUnknown
+	return types.ErrCoerceUnknown
 }
 
 // DefaultResolverValueResolverTimeDuration resolves time.Duration values.
@@ -48,7 +49,7 @@ func (d *DefaultResolverValueResolverTimeDuration) ResolveTypeValue(target refle
 			return err
 		}
 	}
-	return ErrCoerceUnknown
+	return types.ErrCoerceUnknown
 }
 
 // DefaultResolverValueResolverReflectTextUnmarshaler checks if target implements [encoding.TextUnmarshaler]
@@ -71,5 +72,5 @@ func (d *DefaultResolverValueResolverReflectTextUnmarshaler) ResolveTypeValueRef
 		}
 	}
 
-	return ErrCoerceUnknown
+	return types.ErrCoerceUnknown
 }

@@ -3,6 +3,8 @@ package instruct
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/RangelReale/instruct/types"
 )
 
 // decodeStruct uses the structInfo to decode the input to the struct.
@@ -43,7 +45,7 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 		}
 
 		if !dataWasSet && sifield.tag.Required {
-			return RequiredError{
+			return types.RequiredError{
 				Operation: sifield.tag.Operation,
 				FieldName: sifield.fullFieldName(),
 				TagName:   sifield.tag.Name,
@@ -78,7 +80,7 @@ func (d *Decoder[IT, DC]) executeStructOperation(when string, dataValue reflect.
 			fn = si.typ.String()
 		}
 
-		return RequiredError{
+		return types.RequiredError{
 			IsStructOption: true,
 			Operation:      si.tag.Operation,
 			FieldName:      structFieldName(si.typ, si.fullFieldName()),
@@ -107,7 +109,7 @@ func (d *Decoder[IT, DC]) executeOperation(field reflect.Value, sifield *structI
 	if dataWasSet && value != IgnoreDecodeValue {
 		if sifield.field.Type == nil {
 			// struct option can't be set as a value
-			return false, OperationNotSupportedError{
+			return false, types.OperationNotSupportedError{
 				Operation: sifield.tag.Operation,
 				FieldName: structFieldName(sifield.typ, sifield.fullFieldName()),
 			}

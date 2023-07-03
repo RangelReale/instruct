@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/RangelReale/instruct/types"
 )
 
 func (d *Decoder[IT, DC]) decodeInput(input IT, data any, decodeOptions DecodeOptions[IT, DC]) error {
@@ -25,7 +27,7 @@ func (d *Decoder[IT, DC]) decodeInputFromStructInfo(input IT, si *structInfo, da
 
 	rv := reflect.ValueOf(data)
 	if rv.Kind() != reflect.Pointer || rv.IsNil() {
-		return &InvalidDecodeError{reflect.TypeOf(data)}
+		return &types.InvalidDecodeError{reflect.TypeOf(data)}
 	}
 
 	if decodeOptions.MapTags != nil {

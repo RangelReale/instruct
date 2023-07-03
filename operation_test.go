@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/RangelReale/instruct/types"
 	"golang.org/x/exp/maps"
 )
 
@@ -132,7 +133,7 @@ func (d *TestDecodeOperationQuery) Validate(ctx TestDecodeContext, r *http.Reque
 	}
 
 	if !maps.Equal(queryKeys, ctx.GetUsedValues(TestOperationQuery)) {
-		return ValuesNotUsedError{Operation: TestOperationQuery}
+		return types.ValuesNotUsedError{Operation: TestOperationQuery}
 	}
 
 	return nil

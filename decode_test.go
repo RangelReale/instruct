@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/RangelReale/instruct/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,7 +100,7 @@ func TestDecodeNonPointer(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, data, GetTestDecoderDecodeOptions(nil))
-	var target *InvalidDecodeError
+	var target *types.InvalidDecodeError
 	require.ErrorAs(t, err, &target)
 }
 
@@ -208,7 +209,7 @@ func TestDecodeRequiredError(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	var reqErr RequiredError
+	var reqErr types.RequiredError
 	require.ErrorAs(t, err, &reqErr)
 	require.Equal(t, TestOperationHeader, reqErr.Operation)
 	require.Equal(t, "Val", reqErr.FieldName)
@@ -246,7 +247,7 @@ func TestDecodeStructOptionRequiredError(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	var reqErr RequiredError
+	var reqErr types.RequiredError
 	require.ErrorAs(t, err, &reqErr)
 	require.Equal(t, TestOperationHeader, reqErr.Operation)
 	require.Equal(t, "instruct.DataType", reqErr.FieldName)
@@ -265,7 +266,7 @@ func TestDecodeStructOptionInvalidType(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	var opErr OperationNotSupportedError
+	var opErr types.OperationNotSupportedError
 	require.ErrorAs(t, err, &opErr)
 	require.Equal(t, TestOperationHeader, opErr.Operation)
 	require.Equal(t, "instruct.DataType", opErr.FieldName)
@@ -479,5 +480,5 @@ func TestDecodeSliceToNonSliceError(t *testing.T) {
 		"val": []string{"A", "B"},
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
-	require.ErrorIs(t, err, ErrCoerce)
+	require.ErrorIs(t, err, types.ErrCoerce)
 }

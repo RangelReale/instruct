@@ -1,4 +1,4 @@
-package instruct
+package resolver
 
 import (
 	"reflect"

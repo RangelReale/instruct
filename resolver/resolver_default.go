@@ -1,4 +1,4 @@
-package instruct
+package resolver
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/RangelReale/instruct/coerce"
+	"github.com/RangelReale/instruct/types"
 )
 
 // DefaultResolver is the default Resolver.
@@ -91,7 +92,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 			if err == nil {
 				return nil
 			}
-			if errors.Is(err, ErrCoerceUnknown) {
+			if errors.Is(err, types.ErrCoerceUnknown) {
 				continue
 			}
 			return err
@@ -167,7 +168,7 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 		if err == nil {
 			return nil
 		}
-		if errors.Is(err, ErrCoerceUnknown) {
+		if errors.Is(err, types.ErrCoerceUnknown) {
 			continue
 		}
 		return err
@@ -189,5 +190,5 @@ func (r DefaultResolverValue) ResolveValue(target reflect.Value, value any) erro
 	}
 
 	return fmt.Errorf("%w: cannot coerce source of type '%T' into target of type '%s'",
-		ErrCoerceUnknown, value, target.Type().Kind())
+		types.ErrCoerceUnknown, value, target.Type().Kind())
 }
