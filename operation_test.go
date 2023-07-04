@@ -41,6 +41,14 @@ func GetTestDecoderDecodeOptions(ctx TestDecodeContext) DecodeOptions[*http.Requ
 	return optns
 }
 
+func GetTestTypeDecoderOptions() TypeDefaultOptions[*http.Request, TestDecodeContext] {
+	optns := NewTypeDefaultOptions[*http.Request, TestDecodeContext]()
+	optns.DecodeOperations[TestOperationQuery] = &TestDecodeOperationQuery{}
+	optns.DecodeOperations[TestOperationHeader] = &TestDecodeOperationHeader{}
+	optns.DecodeOperations[TestOperationBody] = &TestDecodeOperationBody{}
+	return optns
+}
+
 type TestDecodeContext interface {
 	DecodeContext
 	IsBodyDecoded() bool

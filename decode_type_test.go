@@ -14,7 +14,7 @@ func TestDecodeType(t *testing.T) {
 		Val string `instruct:"query"`
 	}
 
-	d := NewTypeDecoder[*http.Request, TestDecodeContext, DataType](GetTestDecoderOptions())
+	d := NewTypeDecoder[*http.Request, TestDecodeContext, DataType](GetTestTypeDecoderOptions())
 
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	q := r.URL.Query()
@@ -38,7 +38,7 @@ func TestDecodeTypeMapTags(t *testing.T) {
 		}
 	}
 
-	defOpt := GetTestDecoderOptions()
+	defOpt := GetTestTypeDecoderOptions()
 	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
 		"Val": "header",
 		"X": map[string]any{
@@ -63,7 +63,7 @@ func TestDecodeTypeMapTagsOverrideStructTags(t *testing.T) {
 		}
 	}
 
-	defOpt := GetTestDecoderOptions()
+	defOpt := GetTestTypeDecoderOptions()
 	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
 		"X": map[string]any{
 			"X1": "header",

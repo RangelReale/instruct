@@ -41,6 +41,11 @@ type DecodeOptions[IT any, DC DecodeContext] struct {
 	UseDecodeMapTagsAsDefault bool    // internal flag to allow Decode functions without an instance to set MapTags as a default one.
 }
 
+type TypeDefaultOptions[IT any, DC DecodeContext] struct {
+	DefaultOptions[IT, DC]
+	MapTags MapTags // type-specific MapTags. They may override existing ones.
+}
+
 // NewDefaultOptions returns a DefaultOptions with the default values.
 func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 	return DefaultOptions[IT, DC]{
@@ -57,6 +62,13 @@ func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 // NewDecodeOptions returns a DecodeOptions with the default values.
 func NewDecodeOptions[IT any, DC DecodeContext]() DecodeOptions[IT, DC] {
 	return DecodeOptions[IT, DC]{}
+}
+
+// NewTypeDefaultOptions returns a TypeDefaultOptions with the default values.
+func NewTypeDefaultOptions[IT any, DC DecodeContext]() TypeDefaultOptions[IT, DC] {
+	return TypeDefaultOptions[IT, DC]{
+		DefaultOptions: NewDefaultOptions[IT, DC](),
+	}
 }
 
 // helpers

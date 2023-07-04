@@ -13,12 +13,16 @@ type TypeDecoder[IT any, DC DecodeContext, T any] struct {
 
 // NewTypeDecoder creates a TypeDecoder instance for a specific type without any decode operations. At least
 // one must be added for decoding to work.
-func NewTypeDecoder[IT any, DC DecodeContext, T any](options DefaultOptions[IT, DC]) *TypeDecoder[IT, DC, T] {
+func NewTypeDecoder[IT any, DC DecodeContext, T any](options TypeDefaultOptions[IT, DC]) *TypeDecoder[IT, DC, T] {
 	ret := &TypeDecoder[IT, DC, T]{
-		decoder: NewDecoder[IT, DC](options),
+		decoder: NewDecoder[IT, DC](options.DefaultOptions),
 	}
 
 	var data T
+
+	if options.MapTags != nil {
+		ret.decoder.options.defaultMapTags.Set(reflectElem(reflect.TypeOf(data)), options.MapTags)
+	}
 
 	si, err := ret.decoder.structInfoFromType(reflect.TypeOf(data))
 	if err != nil {
