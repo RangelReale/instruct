@@ -8,17 +8,17 @@ type Option[IT any, DC instruct.DecodeContext] interface {
 
 type DefaultOption[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any] interface {
 	TypeDefaultOption[IT, DC, TOPTT]
-	applyDefaultOption(*DOPTT)
+	ApplyDefaultOption(*DOPTT)
 }
 
 type TypeDefaultOption[IT any, DC instruct.DecodeContext, OPTT any] interface {
 	Option[IT, DC]
-	applyTypeDefaultOption(*OPTT)
+	ApplyTypeDefaultOption(*OPTT)
 }
 
 type DecodeOption[IT any, DC instruct.DecodeContext, OPTT any] interface {
 	Option[IT, DC]
-	applyDecodeOption(*OPTT)
+	ApplyDecodeOption(*OPTT)
 }
 
 type TypeDefaultAndDecodeOption[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any] interface {

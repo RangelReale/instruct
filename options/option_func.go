@@ -13,11 +13,11 @@ type DefaultOptionImpl[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any] 
 
 func (f DefaultOptionImpl[IT, DC, DOPTT, TOPTT]) isOption() {}
 
-func (f DefaultOptionImpl[IT, DC, DOPTT, TOPTT]) applyDefaultOption(o *DOPTT) {
+func (f DefaultOptionImpl[IT, DC, DOPTT, TOPTT]) ApplyDefaultOption(o *DOPTT) {
 	f.df(o)
 }
 
-func (f DefaultOptionImpl[IT, DC, DOPTT, TOPTT]) applyTypeDefaultOption(o *TOPTT) {
+func (f DefaultOptionImpl[IT, DC, DOPTT, TOPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
@@ -33,7 +33,7 @@ type TypeDefaultOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any] struct 
 
 func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) isOption() {}
 
-func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) applyTypeDefaultOption(o *TOPTT) {
+func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
@@ -49,7 +49,7 @@ type DecodeOptionImpl[IT any, DC instruct.DecodeContext, COPTT any] struct {
 
 func (f DecodeOptionImpl[IT, DC, COPTT]) isOption() {}
 
-func (f DecodeOptionImpl[IT, DC, COPTT]) applyDecodeOption(o *COPTT) {
+func (f DecodeOptionImpl[IT, DC, COPTT]) ApplyDecodeOption(o *COPTT) {
 	f.cf(o)
 }
 
@@ -66,11 +66,11 @@ type TypeDefaultAndDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any
 
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption() {}
 
-func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) applyTypeDefaultOption(o *TOPTT) {
+func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
-func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) applyDecodeOption(o *COPTT) {
+func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyDecodeOption(o *COPTT) {
 	f.cf(o)
 }
 
@@ -88,15 +88,15 @@ type FullOptionImpl[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any, COP
 
 func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) isOption() {}
 
-func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) applyDefaultOption(o *DOPTT) {
+func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) ApplyDefaultOption(o *DOPTT) {
 	f.df(o)
 }
 
-func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) applyTypeDefaultOption(o *TOPTT) {
+func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
-func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) applyDecodeOption(o *COPTT) {
+func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, COPTT]) ApplyDecodeOption(o *COPTT) {
 	f.cf(o)
 }
 
