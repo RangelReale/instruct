@@ -1,4 +1,4 @@
-package inreq
+package options
 
 import (
 	"github.com/RangelReale/instruct"
