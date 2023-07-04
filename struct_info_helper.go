@@ -76,22 +76,22 @@ type structInfoProvider[IT any, DC DecodeContext] interface {
 	remove(t reflect.Type)
 }
 
-// DefaultStructInfoProvider is a structInfoProvider that never caches.
-type DefaultStructInfoProvider[IT any, DC DecodeContext] struct {
+// defaultStructInfoProvider is a structInfoProvider that never caches.
+type defaultStructInfoProvider[IT any, DC DecodeContext] struct {
 }
 
-func (d DefaultStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
+func (d defaultStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	return buildStructInfo(t, mapTags, options)
 }
 
-func (d DefaultStructInfoProvider[IT, DC]) remove(t reflect.Type) {}
+func (d defaultStructInfoProvider[IT, DC]) remove(t reflect.Type) {}
 
-// CachedStructInfoProvider is a structInfoProvider that always caches.
-type CachedStructInfoProvider[IT any, DC DecodeContext] struct {
+// cachedStructInfoProvider is a structInfoProvider that always caches.
+type cachedStructInfoProvider[IT any, DC DecodeContext] struct {
 	cache sync.Map
 }
 
-func (d *CachedStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
+func (d *cachedStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTags, options DefaultOptions[IT, DC]) (*structInfo, error) {
 	csi, ok := d.cache.Load(t)
 	if ok {
 		return csi.(*structInfo), nil
@@ -107,6 +107,6 @@ func (d *CachedStructInfoProvider[IT, DC]) provide(t reflect.Type, mapTags MapTa
 	return si, nil
 }
 
-func (d *CachedStructInfoProvider[IT, DC]) remove(t reflect.Type) {
+func (d *cachedStructInfoProvider[IT, DC]) remove(t reflect.Type) {
 	d.cache.Delete(t)
 }

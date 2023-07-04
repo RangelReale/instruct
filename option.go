@@ -29,9 +29,9 @@ func (o *DefaultOptions[IT, DC]) DefaultMapTagsSet(t reflect.Type, m MapTags) {
 
 func (o *DefaultOptions[IT, DC]) StructInfoCache(cache bool) {
 	if cache {
-		o.structInfoProvider = &CachedStructInfoProvider[IT, DC]{}
+		o.structInfoProvider = &cachedStructInfoProvider[IT, DC]{}
 	} else {
-		o.structInfoProvider = &DefaultStructInfoProvider[IT, DC]{}
+		o.structInfoProvider = &defaultStructInfoProvider[IT, DC]{}
 	}
 }
 
@@ -54,7 +54,7 @@ func NewDefaultOptions[IT any, DC DecodeContext]() DefaultOptions[IT, DC] {
 		DecodeOperations:   map[string]DecodeOperation[IT, DC]{},
 		defaultMapTags:     &mapTagsList{},
 		FieldNameMapper:    DefaultFieldNameMapper,
-		structInfoProvider: DefaultStructInfoProvider[IT, DC]{},
+		structInfoProvider: defaultStructInfoProvider[IT, DC]{},
 		Resolver:           resolver.NewResolver(nil),
 	}
 }
