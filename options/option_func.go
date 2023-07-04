@@ -131,6 +131,30 @@ func DefaultAndDecodeOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any, CO
 
 // TypeDefaultOption + TypeDecodeOption
 
+var _ TypeDefaultAndTypeDecodeOption[any, instruct.DecodeContext, any, any] = (*TypeDefaultAndTypeDecodeOptionImpl[any, instruct.DecodeContext, any, any])(nil)
+
+type TypeDefaultAndTypeDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any] struct {
+	tf func(o *TOPTT)
+	cf func(o *COPTT)
+}
+
+func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption()        {}
+func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyTypeOption() {}
+
+func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDefaultOption(o *TOPTT) {
+	f.tf(o)
+}
+
+func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDecodeOption(o *COPTT) {
+	f.cf(o)
+}
+
+func TypeDefaultAndTypeDecodeOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any](tf func(o *TOPTT), cf func(o *COPTT)) *TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT] {
+	return &TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]{tf, cf}
+}
+
+// TypeDefaultOption + DecodeOption
+
 var _ TypeDefaultAndDecodeOption[any, instruct.DecodeContext, any, any] = (*TypeDefaultAndDecodeOptionImpl[any, instruct.DecodeContext, any, any])(nil)
 
 type TypeDefaultAndDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any] struct {
@@ -139,13 +163,14 @@ type TypeDefaultAndDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any
 }
 
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption()        {}
+func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyOption()     {}
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyTypeOption() {}
 
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
-func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDecodeOption(o *COPTT) {
+func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyDecodeOption(o *COPTT) {
 	f.cf(o)
 }
 

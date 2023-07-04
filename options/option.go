@@ -46,9 +46,19 @@ type DefaultAndDecodeOption[IT any, DC instruct.DecodeContext, DOPTT any, COPTT 
 	DecodeOption[IT, DC, COPTT]
 }
 
-type TypeDefaultAndDecodeOption[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any] interface {
+type TypeDefaultAndTypeDecodeOption[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any] interface {
 	TypeDefaultOption[IT, DC, TOPTT]
 	TypeDecodeOption[IT, DC, COPTT]
+}
+
+type DefaultAndTypeDefaultDecodeOption[IT any, DC instruct.DecodeContext, DCOPTT any, TCOPTT any] interface {
+	DecodeOption[IT, DC, DCOPTT]
+	TypeDecodeOption[IT, DC, TCOPTT]
+}
+
+type TypeDefaultAndDecodeOption[IT any, DC instruct.DecodeContext, TOPTT any, DCOPTT any] interface {
+	TypeDefaultOption[IT, DC, TOPTT]
+	DecodeOption[IT, DC, DCOPTT]
 }
 
 type FullOption[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any, DCOPTT any, TCOPTT any] interface {
