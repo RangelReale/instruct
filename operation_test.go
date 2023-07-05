@@ -29,11 +29,15 @@ func GetTestDecoderOptionsWithManual(values map[string]any) DefaultOptions[*http
 	return optns
 }
 
-func GetTestDecoderDecodeOptions(ctx TestDecodeContext) DecodeOptions[*http.Request, TestDecodeContext] {
+func GetTestDecoderDecodeOptions(ctx *testDecodeContext) DecodeOptions[*http.Request, TestDecodeContext] {
 	if ctx == nil {
 		ctx = &testDecodeContext{
 			sliceSplitSeparator: ",",
 		}
+	}
+	if ctx.DefaultDecodeContext == nil {
+		dc := NewDefaultDecodeContext(DefaultFieldNameMapper)
+		ctx.DefaultDecodeContext = &dc
 	}
 
 	optns := NewDecodeOptions[*http.Request, TestDecodeContext]()
@@ -60,7 +64,7 @@ type TestDecodeContext interface {
 }
 
 type testDecodeContext struct {
-	DefaultDecodeContext
+	*DefaultDecodeContext
 	decodedBody         bool
 	allowReadBody       bool
 	sliceSplitSeparator string
