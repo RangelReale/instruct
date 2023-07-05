@@ -12,7 +12,6 @@ type DefaultOptionImpl[IT any, DC instruct.DecodeContext, DOPTT any] struct {
 
 var _ DefaultOption[any, instruct.DecodeContext, any] = (*DefaultOptionImpl[any, instruct.DecodeContext, any])(nil)
 
-func (f DefaultOptionImpl[IT, DC, DOPTT]) isOption()    {}
 func (f DefaultOptionImpl[IT, DC, DOPTT]) isAnyOption() {}
 
 func (f DefaultOptionImpl[IT, DC, DOPTT]) ApplyDefaultOption(o *DOPTT) {
@@ -31,7 +30,6 @@ type TypeDefaultOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any] struct 
 
 var _ TypeDefaultOption[any, instruct.DecodeContext, any] = (*TypeDefaultOptionImpl[any, instruct.DecodeContext, any])(nil)
 
-func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) isOption()        {}
 func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) isAnyTypeOption() {}
 
 func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) ApplyTypeDefaultOption(o *TOPTT) {
@@ -50,7 +48,6 @@ type DecodeOptionImpl[IT any, DC instruct.DecodeContext, COPTT any] struct {
 
 var _ DecodeOption[any, instruct.DecodeContext, any] = (*DecodeOptionImpl[any, instruct.DecodeContext, any])(nil)
 
-func (f DecodeOptionImpl[IT, DC, COPTT]) isOption()    {}
 func (f DecodeOptionImpl[IT, DC, COPTT]) isAnyOption() {}
 
 func (f DecodeOptionImpl[IT, DC, COPTT]) ApplyDecodeOption(o *COPTT) {
@@ -69,7 +66,6 @@ type TypeDecodeOptionImpl[IT any, DC instruct.DecodeContext, COPTT any] struct {
 
 var _ TypeDecodeOption[any, instruct.DecodeContext, any] = (*TypeDecodeOptionImpl[any, instruct.DecodeContext, any])(nil)
 
-func (f TypeDecodeOptionImpl[IT, DC, COPTT]) isOption()        {}
 func (f TypeDecodeOptionImpl[IT, DC, COPTT]) isAnyTypeOption() {}
 
 func (f TypeDecodeOptionImpl[IT, DC, COPTT]) ApplyTypeDecodeOption(o *COPTT) {
@@ -89,7 +85,6 @@ type DefaultAndTypeDefaultOptionImpl[IT any, DC instruct.DecodeContext, DOPTT an
 
 var _ DefaultAndTypeDefaultOption[any, instruct.DecodeContext, any, any] = (*DefaultAndTypeDefaultOptionImpl[any, instruct.DecodeContext, any, any])(nil)
 
-func (f DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT]) isOption()        {}
 func (f DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT]) isAnyOption()     {}
 func (f DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT]) isAnyTypeOption() {}
 
@@ -114,7 +109,6 @@ type DefaultAndDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any, CO
 	cf func(o *COPTT)
 }
 
-func (f DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption()    {}
 func (f DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyOption() {}
 
 func (f DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyDefaultOption(o *TOPTT) {
@@ -138,7 +132,6 @@ type TypeDefaultAndTypeDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT
 	cf func(o *COPTT)
 }
 
-func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption()        {}
 func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyTypeOption() {}
 
 func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDefaultOption(o *TOPTT) {
@@ -162,7 +155,6 @@ type TypeDefaultAndDecodeOptionImpl[IT any, DC instruct.DecodeContext, TOPTT any
 	cf func(o *COPTT)
 }
 
-func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isOption()        {}
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyOption()     {}
 func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) isAnyTypeOption() {}
 
@@ -189,7 +181,6 @@ type FullOptionImpl[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any, DCO
 
 var _ FullOption[any, instruct.DecodeContext, any, any, any, any] = (*FullOptionImpl[any, instruct.DecodeContext, any, any, any, any])(nil)
 
-func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT]) isOption()        {}
 func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT]) isAnyOption()     {}
 func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT]) isAnyTypeOption() {}
 

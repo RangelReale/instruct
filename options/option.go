@@ -2,17 +2,11 @@ package options
 
 import "github.com/RangelReale/instruct"
 
-type Option interface {
-	isOption()
-}
-
 type AnyOption[IT any, DC instruct.DecodeContext] interface {
-	Option
 	isAnyOption()
 }
 
 type AnyTypeOption[IT any, DC instruct.DecodeContext] interface {
-	Option
 	isAnyTypeOption()
 }
 
