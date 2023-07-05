@@ -82,7 +82,7 @@ func TestDecodeTypeMapTagsDefault(t *testing.T) {
 	}
 
 	defOpt := GetTestTypeDecoderOptions()
-	defOpt.DefaultOptions.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
+	defOpt.DefaultOptions.DefaultMapTagsSet(reflect.TypeOf(DataType{}), map[string]any{
 		"Val": "header",
 		"X": map[string]any{
 			"X1": "header",
@@ -107,7 +107,7 @@ func TestDecodeTypeMapTagsOverrideStructTags(t *testing.T) {
 	}
 
 	defOpt := GetTestTypeDecoderOptions()
-	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
+	defOpt.DefaultMapTagsSet(reflect.TypeOf(DataType{}), map[string]any{
 		"X": map[string]any{
 			"X1": "header",
 		},

@@ -87,6 +87,32 @@ func TestDecodeEmbed(t *testing.T) {
 	require.Equal(t, want, data)
 }
 
+func TestDecodeUsingCache(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/?val=x2", nil)
+	r.Header.Set("val", "x1")
+
+	var data DataType
+
+	defOpt := GetTestDecoderOptions()
+	defOpt.StructInfoCache(true)
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, "x1", data.Val)
+
+	// this resets the cache
+	dec.options.DefaultMapTagsSet(reflect.TypeOf(DataType{}), MapTags{
+		"Val": "query",
+	})
+	err = dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, "x2", data.Val)
+}
+
 func TestDecodeNonPointer(t *testing.T) {
 	type DataType struct {
 		Val string `instruct:"header"`
@@ -233,6 +259,27 @@ func TestDecodeStructOption(t *testing.T) {
 	require.Equal(t, "14", data.Val)
 }
 
+func TestDecodeMapStructOption(t *testing.T) {
+	type DataType struct {
+		Val string
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"Val": "14"}`))
+
+	var data DataType
+
+	defOpt := GetTestDecoderOptions()
+	defOpt.DefaultMapTagsSet(reflect.TypeOf(DataType{}), MapTags{
+		StructOptionMapTag: "body,type=json",
+	})
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(&testDecodeContext{
+		allowReadBody: true,
+	}))
+	require.NoError(t, err)
+	require.Equal(t, "14", data.Val)
+}
+
 func TestDecodeStructOptionRequiredError(t *testing.T) {
 	type DataType struct {
 		_ StructOption `instruct:"header"`
@@ -292,7 +339,7 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	}
 
 	defOpt := GetTestDecoderOptions()
-	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType3{}), MapTags{
+	defOpt.DefaultMapTagsSet(reflect.TypeOf(DataType3{}), MapTags{
 		"I": MapTags{
 			"Val": "header",
 		},
@@ -349,7 +396,7 @@ func TestDecodeMapTags(t *testing.T) {
 	var data DataType
 
 	defOpt := GetTestDecoderOptions()
-	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
+	defOpt.DefaultMapTagsSet(reflect.TypeOf(DataType{}), map[string]any{
 		"Val": "header",
 		"X": map[string]any{
 			"X1": "header",
@@ -376,7 +423,7 @@ func TestDecodeMapTagsOverrideStructTags(t *testing.T) {
 	var data DataType
 
 	defOpt := GetTestDecoderOptions()
-	defOpt.defaultMapTags.Set(reflect.TypeOf(DataType{}), map[string]any{
+	defOpt.DefaultMapTagsSet(reflect.TypeOf(DataType{}), map[string]any{
 		"X": map[string]any{
 			"X1": "header",
 		},
