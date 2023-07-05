@@ -11,9 +11,10 @@ import (
 
 // TimeTest is the struct used to build up table driven tests for time.Time.
 type TimeTest struct {
-	To     interface{}
-	Error  error
-	Expect time.Time
+	To      interface{}
+	Error   error
+	ErrorAs error
+	Expect  time.Time
 }
 
 // TimeTests is a table of TimeTests.
@@ -25,7 +26,11 @@ func (tests TimeTests) Run(t *testing.T) {
 		t.Run("time "+name, func(t *testing.T) {
 			chk := assert.New(t)
 			s, err := coerce.Time(test.To, time.RFC3339)
-			chk.True(errors.Is(err, test.Error))
+			if test.ErrorAs != nil {
+				chk.ErrorAs(err, &test.ErrorAs)
+			} else {
+				chk.True(errors.Is(err, test.Error), "%v", err)
+			}
 			chk.Equal(test.Expect, s)
 		})
 	}
@@ -79,6 +84,21 @@ func TestTimeFromString(t *testing.T) {
 	tests := TimeTests{
 		ss: {
 			To: ss, Expect: s,
+		},
+	}
+	tests.Run(t)
+}
+
+func TestTimeFromStringKind(t *testing.T) {
+	ss := "2021-10-22T11:01:00Z"
+	s, _ := time.Parse(time.RFC3339, ss)
+
+	tests := TimeTests{
+		"string kind empty": {
+			To: S(""), Expect: time.Time{}, ErrorAs: &time.ParseError{},
+		},
+		"string kind": {
+			To: S(ss), Expect: s,
 		},
 	}
 	tests.Run(t)

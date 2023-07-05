@@ -74,11 +74,17 @@ func Test_resolve(t *testing.T) {
 		),
 	)
 
+	type CustomType struct {
+		X int
+	}
+
+	type CustomTypeSub CustomType
+
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 	tests := []struct {
 		name    string
 		input   interface{}
-		value   string
+		value   any
 		want    interface{}
 		wantErr bool
 	}{
@@ -113,6 +119,8 @@ func Test_resolve(t *testing.T) {
 		{name: "resolve failed uint16", input: uint16(0), value: "trick", want: uint16(0), wantErr: true},
 		{name: "resolve uint8", input: uint8(0), value: "5", want: uint8(5), wantErr: false},
 		{name: "resolve failed uint8", input: uint8(0), value: "trick", want: uint8(0), wantErr: true},
+		{name: "custom type", input: CustomType{}, value: CustomType{5}, want: CustomType{5}, wantErr: false},
+		{name: "custom type convertible", input: CustomTypeSub{}, value: CustomType{5}, want: CustomTypeSub{5}, wantErr: false},
 		{name: "failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
 	}
 	for i := range tests {

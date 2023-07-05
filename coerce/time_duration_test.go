@@ -11,9 +11,10 @@ import (
 
 // TimeDurationTest is the struct used to build up table driven tests for time.Duration.
 type TimeDurationTest struct {
-	To     interface{}
-	Error  error
-	Expect time.Duration
+	To      interface{}
+	Error   error
+	ErrorAs error
+	Expect  time.Duration
 }
 
 // TimeDurationTests is a table of TimeDurationTests.
@@ -25,7 +26,11 @@ func (tests TimeDurationTests) Run(t *testing.T) {
 		t.Run("time duration "+name, func(t *testing.T) {
 			chk := assert.New(t)
 			s, err := coerce.TimeDuration(test.To)
-			chk.True(errors.Is(err, test.Error))
+			if test.ErrorAs != nil {
+				chk.ErrorAs(err, &test.ErrorAs)
+			} else {
+				chk.True(errors.Is(err, test.Error), "%v", err)
+			}
 			chk.Equal(test.Expect, s)
 		})
 	}
@@ -79,6 +84,21 @@ func TestTimeDurationFromString(t *testing.T) {
 	tests := TimeDurationTests{
 		ss: {
 			To: ss, Expect: s,
+		},
+	}
+	tests.Run(t)
+}
+
+func TestTimeDurationFromStringKind(t *testing.T) {
+	ss := "5s"
+	s, _ := time.ParseDuration(ss)
+
+	tests := TimeDurationTests{
+		"string kind empty": {
+			To: S(""), Expect: time.Duration(0), ErrorAs: &time.ParseError{},
+		},
+		"string kind": {
+			To: S(ss), Expect: s,
 		},
 	}
 	tests.Run(t)
