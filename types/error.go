@@ -68,3 +68,19 @@ func (e OperationNotSupportedError) Error() string {
 	return fmt.Sprintf("operation '%s' not supported (no field type, maybe struct option?) for field '%s'",
 		e.Operation, e.FieldName)
 }
+
+type CoerceError struct {
+	err error
+}
+
+func NewCoerceError(innerErr error) CoerceError {
+	return CoerceError{err: innerErr}
+}
+
+func (c CoerceError) Error() string {
+	return c.err.Error()
+}
+
+func (c CoerceError) Unwrap() error {
+	return c.err
+}

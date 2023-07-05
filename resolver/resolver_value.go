@@ -76,6 +76,14 @@ func WithCustomTypesReflect(customTypes ...TypeValueResolverReflect) ValueOption
 }
 
 func (r DefaultValueResolver) ResolveValue(target reflect.Value, value any) error {
+	err := r.resolveValue(target, value)
+	if err != nil {
+		return types.NewCoerceError(err)
+	}
+	return nil
+}
+
+func (r DefaultValueResolver) resolveValue(target reflect.Value, value any) error {
 	if !target.CanSet() {
 		return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
 	}
