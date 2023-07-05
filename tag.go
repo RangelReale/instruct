@@ -40,14 +40,14 @@ func (t *TagOptions) Get(name string) (string, bool) {
 }
 
 func (t *TagOptions) Value(name string, defaultValue string) string {
-	if tv, ok := t.options[name]; ok {
+	if tv, ok := t.Get(name); ok {
 		return tv
 	}
 	return defaultValue
 }
 
 func (t *TagOptions) BoolValue(name string, defaultValue bool) (bool, error) {
-	if tv, ok := t.options[name]; ok {
+	if tv, ok := t.Get(name); ok {
 		b, err := strconv.ParseBool(tv)
 		if err != nil {
 			return false, err

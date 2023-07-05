@@ -21,20 +21,6 @@ func reflectValueElem(t reflect.Value) reflect.Value {
 	return t
 }
 
-func unpointValue(value reflect.Value) reflect.Value {
-	if value.Kind() == reflect.Ptr {
-		return reflect.Indirect(value)
-	}
-	return value
-}
-
-func unpointType(typ reflect.Type) reflect.Type {
-	if typ.Kind() == reflect.Ptr {
-		return typ.Elem()
-	}
-	return typ
-}
-
 func structFieldName(structTyp reflect.Type, fieldName string) string {
 	if fieldName == "" {
 		return structTyp.String()
@@ -99,8 +85,4 @@ func (s level) StringPathWithName(name string) string {
 
 func (s level) Path() []string {
 	return s.names
-}
-
-func (s level) PathWithName(name string) []string {
-	return append(append([]string{}, s.names...), name)
 }
