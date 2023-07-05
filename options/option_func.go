@@ -18,6 +18,7 @@ func (f DefaultOptionImpl[IT, DC, DOPTT]) ApplyDefaultOption(o *DOPTT) {
 	f.f(o)
 }
 
+// DefaultOptionFunc is the option constructor for DefaultOption.
 func DefaultOptionFunc[IT any, DC instruct.DecodeContext, DOPTT any](f func(o *DOPTT)) *DefaultOptionImpl[IT, DC, DOPTT] {
 	return &DefaultOptionImpl[IT, DC, DOPTT]{f}
 }
@@ -36,6 +37,7 @@ func (f TypeDefaultOptionImpl[IT, DC, TOPTT]) ApplyTypeDefaultOption(o *TOPTT) {
 	f.tf(o)
 }
 
+// TypeDefaultOptionFunc is the option constructor for TypeDefaultOption.
 func TypeDefaultOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any](tf func(o *TOPTT)) *TypeDefaultOptionImpl[IT, DC, TOPTT] {
 	return &TypeDefaultOptionImpl[IT, DC, TOPTT]{tf}
 }
@@ -54,6 +56,7 @@ func (f DecodeOptionImpl[IT, DC, COPTT]) ApplyDecodeOption(o *COPTT) {
 	f.f(o)
 }
 
+// DecodeOptionFunc is the option constructor for DecodeOption.
 func DecodeOptionFunc[IT any, DC instruct.DecodeContext, COPTT any](f func(o *COPTT)) *DecodeOptionImpl[IT, DC, COPTT] {
 	return &DecodeOptionImpl[IT, DC, COPTT]{f}
 }
@@ -72,6 +75,7 @@ func (f TypeDecodeOptionImpl[IT, DC, COPTT]) ApplyTypeDecodeOption(o *COPTT) {
 	f.f(o)
 }
 
+// TypeDecodeOptionFunc is the option constructor for TypeDecodeOption.
 func TypeDecodeOptionFunc[IT any, DC instruct.DecodeContext, COPTT any](f func(o *COPTT)) *TypeDecodeOptionImpl[IT, DC, COPTT] {
 	return &TypeDecodeOptionImpl[IT, DC, COPTT]{f}
 }
@@ -96,6 +100,7 @@ func (f DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT]) ApplyTypeDefaultO
 	f.tf(o)
 }
 
+// DefaultAndTypeDefaultOptionFunc is the option constructor for DefaultAndTypeDefaultOption.
 func DefaultAndTypeDefaultOptionFunc[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any](df func(o *DOPTT), tf func(o *TOPTT)) *DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT] {
 	return &DefaultAndTypeDefaultOptionImpl[IT, DC, DOPTT, TOPTT]{df, tf}
 }
@@ -119,6 +124,7 @@ func (f DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyDecodeOption(o *C
 	f.cf(o)
 }
 
+// DefaultAndDecodeOptionFunc is the option constructor for DefaultAndDecodeOption.
 func DefaultAndDecodeOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any](tf func(o *TOPTT), cf func(o *COPTT)) *DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT] {
 	return &DefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]{tf, cf}
 }
@@ -142,6 +148,7 @@ func (f TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyTypeDecod
 	f.cf(o)
 }
 
+// TypeDefaultAndTypeDecodeOptionFunc is the option constructor for TypeDefaultAndTypeDecodeOption.
 func TypeDefaultAndTypeDecodeOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any](tf func(o *TOPTT), cf func(o *COPTT)) *TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT] {
 	return &TypeDefaultAndTypeDecodeOptionImpl[IT, DC, TOPTT, COPTT]{tf, cf}
 }
@@ -166,6 +173,7 @@ func (f TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]) ApplyDecodeOption(
 	f.cf(o)
 }
 
+// TypeDefaultAndDecodeOptionFunc is the option constructor for TypeDefaultAndDecodeOption.
 func TypeDefaultAndDecodeOptionFunc[IT any, DC instruct.DecodeContext, TOPTT any, COPTT any](tf func(o *TOPTT), cf func(o *COPTT)) *TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT] {
 	return &TypeDefaultAndDecodeOptionImpl[IT, DC, TOPTT, COPTT]{tf, cf}
 }
@@ -200,6 +208,7 @@ func (f FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT]) ApplyTypeDecodeOpt
 	f.tcf(o)
 }
 
+// FullOptionFunc is the option constructor for FullOption.
 func FullOptionFunc[IT any, DC instruct.DecodeContext, DOPTT any, TOPTT any, DCOPTT any, TCOPTT any](df func(o *DOPTT),
 	tf func(o *TOPTT), dcf func(o *DCOPTT), tcf func(o *TCOPTT)) *FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT] {
 	return &FullOptionImpl[IT, DC, DOPTT, TOPTT, DCOPTT, TCOPTT]{df, tf, dcf, tcf}
