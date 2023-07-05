@@ -18,13 +18,14 @@ func NewResolver(options ...Option) *Resolver {
 		opt(ret)
 	}
 	if ret.valueResolver == nil {
-		ret.valueResolver = &DefaultValueResolver{}
+		ret.valueResolver = NewDefaultValueResolver()
 	}
 	return ret
 }
 
 type Option func(resolver *Resolver)
 
+// WithValueResolver sets a custom ValueResolver to be used instead of the default.
 func WithValueResolver(valueResolver ValueResolver) Option {
 	return func(r *Resolver) {
 		r.valueResolver = valueResolver

@@ -67,12 +67,12 @@ func Test_resolveValue(t *testing.T) {
 }
 
 func Test_resolve(t *testing.T) {
-	resolver := &DefaultValueResolver{
-		CustomTypes: []TypeValueResolver{
+	resolver := NewDefaultValueResolver(
+		WithCustomTypes(
 			NewValueResolverTime(time.RFC3339),
-			&ValueResolverTimeDuration{},
-		},
-	}
+			NewValueResolverTimeDuration(),
+		),
+	)
 
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 	tests := []struct {
@@ -133,11 +133,11 @@ func Test_resolve(t *testing.T) {
 }
 
 func Test_resolve_textUnmarshaller(t *testing.T) {
-	resolver := &DefaultValueResolver{
-		CustomTypesReflect: []TypeValueResolverReflect{
-			&ValueResolverReflectTextUnmarshaler{},
-		},
-	}
+	resolver := NewDefaultValueResolver(
+		WithCustomTypesReflect(
+			NewValueResolverReflectTextUnmarshaler(),
+		),
+	)
 
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 

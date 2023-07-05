@@ -35,6 +35,10 @@ func (d *ValueResolverTime) ResolveTypeValue(target reflect.Value, value any) er
 type ValueResolverTimeDuration struct {
 }
 
+func NewValueResolverTimeDuration() *ValueResolverTimeDuration {
+	return &ValueResolverTimeDuration{}
+}
+
 func (d *ValueResolverTimeDuration) ResolveTypeValue(target reflect.Value, value any) error {
 	if target.CanInterface() {
 		switch target.Interface().(type) {

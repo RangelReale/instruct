@@ -33,6 +33,48 @@ type DefaultValueResolver struct {
 	CustomTypesReflect []TypeValueResolverReflect
 }
 
+func NewDefaultValueResolver(options ...ValueOption) *DefaultValueResolver {
+	ret := &DefaultValueResolver{}
+	for _, opt := range options {
+		opt(ret)
+	}
+	return ret
+}
+
+type ValueOption func(resolver *DefaultValueResolver)
+
+// WithCustomType adds a custom type.
+func WithCustomType(customType TypeValueResolver) ValueOption {
+	return func(r *DefaultValueResolver) {
+		r.CustomTypes = append(r.CustomTypes, customType)
+	}
+}
+
+// WithCustomTypeReflect adds a custom type that uses reflection.
+func WithCustomTypeReflect(customType TypeValueResolverReflect) ValueOption {
+	return func(r *DefaultValueResolver) {
+		r.CustomTypesReflect = append(r.CustomTypesReflect, customType)
+	}
+}
+
+// WithCustomTypes adds custom types.
+func WithCustomTypes(customTypes ...TypeValueResolver) ValueOption {
+	return func(r *DefaultValueResolver) {
+		for _, customType := range customTypes {
+			r.CustomTypes = append(r.CustomTypes, customType)
+		}
+	}
+}
+
+// WithCustomTypesReflect adds custom types that uses reflection.
+func WithCustomTypesReflect(customTypes ...TypeValueResolverReflect) ValueOption {
+	return func(r *DefaultValueResolver) {
+		for _, customType := range customTypes {
+			r.CustomTypesReflect = append(r.CustomTypesReflect, customType)
+		}
+	}
+}
+
 func (r DefaultValueResolver) ResolveValue(target reflect.Value, value any) error {
 	if !target.CanSet() {
 		return fmt.Errorf("cannot set '%s' ", target.Type().Kind())

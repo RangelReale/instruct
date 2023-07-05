@@ -16,6 +16,10 @@ var (
 type ValueResolverReflectTextUnmarshaler struct {
 }
 
+func NewValueResolverReflectTextUnmarshaler() *ValueResolverReflectTextUnmarshaler {
+	return &ValueResolverReflectTextUnmarshaler{}
+}
+
 func (d *ValueResolverReflectTextUnmarshaler) ResolveTypeValueReflect(target reflect.Value,
 	sourceValue reflect.Value, value any) error {
 	switch sourceValue.Type().Kind() {
