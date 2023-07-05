@@ -31,9 +31,10 @@ func GetTestDecoderOptionsWithManual(values map[string]any) DefaultOptions[*http
 
 func GetTestDecoderDecodeOptions(ctx *testDecodeContext) DecodeOptions[*http.Request, TestDecodeContext] {
 	if ctx == nil {
-		ctx = &testDecodeContext{
-			sliceSplitSeparator: ",",
-		}
+		ctx = &testDecodeContext{}
+	}
+	if ctx.sliceSplitSeparator == "" {
+		ctx.sliceSplitSeparator = ","
 	}
 	if ctx.DefaultDecodeContext == nil {
 		dc := NewDefaultDecodeContext(DefaultFieldNameMapper)

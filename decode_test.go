@@ -58,8 +58,7 @@ func TestDecode(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, data, GetTestDecoderDecodeOptions(&testDecodeContext{
-		sliceSplitSeparator: ",",
-		allowReadBody:       true,
+		allowReadBody: true,
 	}))
 	require.NoError(t, err)
 	require.Equal(t, want, data)
@@ -228,8 +227,7 @@ func TestDecodeStructOption(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(&testDecodeContext{
-		sliceSplitSeparator: ",",
-		allowReadBody:       true,
+		allowReadBody: true,
 	}))
 	require.NoError(t, err)
 	require.Equal(t, "14", data.Val)
@@ -307,8 +305,7 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	var data DataType
 
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(&testDecodeContext{
-		sliceSplitSeparator: ",",
-		allowReadBody:       true,
+		allowReadBody: true,
 	}))
 	require.NoError(t, err)
 	require.Equal(t, "14", data.I.Val)
@@ -319,8 +316,7 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	var data2 DataType2
 
 	err = dec.Decode(r, &data2, GetTestDecoderDecodeOptions(&testDecodeContext{
-		sliceSplitSeparator: ",",
-		allowReadBody:       true,
+		allowReadBody: true,
 	}))
 	require.NoError(t, err)
 	require.Equal(t, "15", data2.I.Val)
@@ -332,8 +328,7 @@ func TestDecodeStructOptionPriority(t *testing.T) {
 	var data3 DataType3
 
 	err = dec.Decode(r, &data3, GetTestDecoderDecodeOptions(&testDecodeContext{
-		sliceSplitSeparator: ",",
-		allowReadBody:       true,
+		allowReadBody: true,
 	}))
 	require.NoError(t, err)
 	require.Equal(t, "90", data3.I.Val)
@@ -389,6 +384,33 @@ func TestDecodeMapTagsOverrideStructTags(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, "x1", data.Val)
+	require.Equal(t, "x2", data.X.X1)
+}
+
+func TestDecodeMapTagsDecodeOverride(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/?val=x1", nil)
+	r.Header.Set("x1", "x2")
+
+	type DataType struct {
+		Val string `instruct:"query"`
+		X   struct {
+			X1 string `instruct:"query"`
+		} `instruct:"recurse"`
+	}
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	decOpt := GetTestDecoderDecodeOptions(nil)
+	decOpt.MapTags = map[string]any{
+		"X": map[string]any{
+			"X1": "header",
+		},
+	}
+
+	err := dec.Decode(r, &data, decOpt)
 	require.NoError(t, err)
 	require.Equal(t, "x1", data.Val)
 	require.Equal(t, "x2", data.X.X1)
@@ -497,4 +519,36 @@ func TestDecodeMapFieldNotSupported(t *testing.T) {
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.ErrorIs(t, err, types.ErrCoerceUnknown)
+}
+
+func TestDecodeEnsureUsed(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"query"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/?val=x1&y=2", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(&testDecodeContext{
+		ensureAllQueryUsed: true,
+	}))
+	var uerr types.ValuesNotUsedError
+	require.ErrorAs(t, err, &uerr)
+	require.Equal(t, "query", uerr.Operation)
+}
+
+func TestDecodeUnknownOperation(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"invalid_operation"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/?val=x1&y=2", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
 }

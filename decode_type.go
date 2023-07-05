@@ -21,7 +21,7 @@ func NewTypeDecoder[IT any, DC DecodeContext, T any](options TypeDefaultOptions[
 	var data T
 
 	if options.MapTags != nil {
-		ret.decoder.options.defaultMapTags.Set(reflectElem(reflect.TypeOf(data)), options.MapTags)
+		ret.decoder.options.defaultMapTags.Set(reflect.TypeOf(data), options.MapTags)
 	}
 
 	si, err := ret.decoder.structInfoFromType(reflect.TypeOf(data))
