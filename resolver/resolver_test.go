@@ -76,6 +76,8 @@ func Test_resolve(t *testing.T) {
 
 	type CustomTypeSub CustomType
 
+	type CustomStringType string
+
 	tests := []struct {
 		name    string
 		input   interface{}
@@ -84,6 +86,7 @@ func Test_resolve(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "resolve string", input: string(""), value: "test", want: "test", wantErr: false},
+		{name: "resolve custom string", input: CustomStringType(""), value: "test", want: CustomStringType("test"), wantErr: false},
 		{name: "resolve bool", input: bool(false), value: "true", want: true, wantErr: false},
 		{name: "resolve failed bool", input: bool(false), value: "trick", want: bool(false), wantErr: true},
 		{name: "resolve failed time", input: time.Time{}, value: "trick", want: time.Time{}, wantErr: true},
@@ -112,10 +115,12 @@ func Test_resolve(t *testing.T) {
 		{name: "resolve failed uint16", input: uint16(0), value: "trick", want: uint16(0), wantErr: true},
 		{name: "resolve uint8", input: uint8(0), value: "5", want: uint8(5), wantErr: false},
 		{name: "resolve failed uint8", input: uint8(0), value: "trick", want: uint8(0), wantErr: true},
-		{name: "custom type assignable", input: CustomType{}, value: CustomType{5}, want: CustomType{5}, wantErr: false},
-		{name: "custom type convertible", input: CustomTypeSub{}, value: CustomType{5}, want: CustomTypeSub{5}, wantErr: false},
-		{name: "custom type based on primitive", input: net.IP{}, value: []byte{1, 2, 3, 4}, want: net.IP{}, wantErr: true},
-		{name: "failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
+		{name: "resolve custom type assignable", input: CustomType{}, value: CustomType{5}, want: CustomType{5}, wantErr: false},
+		{name: "resolve custom type convertible", input: CustomTypeSub{}, value: CustomType{5}, want: CustomTypeSub{5}, wantErr: false},
+		{name: "resolve custom type based on primitive", input: net.IP{}, value: []byte{1, 2, 3, 4}, want: net.IP{}, wantErr: true},
+		{name: "resolve failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
+		{name: "resolve exact slice type", input: []int32{}, value: []int32{1, 2, 3}, want: []int32{1, 2, 3}, wantErr: false},
+		{name: "resolve failed slice", input: []int64{}, value: []int32{1, 2, 3}, want: []int32{}, wantErr: true},
 	}
 	for i := range tests {
 		tt := tests[i]
