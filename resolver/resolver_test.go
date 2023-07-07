@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"net"
 	"reflect"
 	"testing"
 	"time"
@@ -67,12 +68,7 @@ func Test_resolveValue(t *testing.T) {
 }
 
 func Test_resolve(t *testing.T) {
-	resolver := NewDefaultValueResolver(
-		WithCustomTypes(
-			NewValueResolverTime(time.RFC3339),
-			NewValueResolverTimeDuration(),
-		),
-	)
+	resolver := NewDefaultValueResolver()
 
 	type CustomType struct {
 		X int
@@ -80,7 +76,6 @@ func Test_resolve(t *testing.T) {
 
 	type CustomTypeSub CustomType
 
-	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
 	tests := []struct {
 		name    string
 		input   interface{}
@@ -91,9 +86,7 @@ func Test_resolve(t *testing.T) {
 		{name: "resolve string", input: string(""), value: "test", want: "test", wantErr: false},
 		{name: "resolve bool", input: bool(false), value: "true", want: true, wantErr: false},
 		{name: "resolve failed bool", input: bool(false), value: "trick", want: bool(false), wantErr: true},
-		{name: "resolve time", input: time.Time{}, value: "2021-10-22T11:01:00Z", want: t1, wantErr: false},
 		{name: "resolve failed time", input: time.Time{}, value: "trick", want: time.Time{}, wantErr: true},
-		{name: "resolve duration", input: time.Duration(0), value: "5s", want: 5 * time.Second, wantErr: false},
 		{name: "resolve failed duration", input: time.Duration(0), value: "trick", want: time.Duration(0), wantErr: true},
 		{name: "resolve int", input: int(0), value: "5", want: int(5), wantErr: false},
 		{name: "resolve failed int", input: int(0), value: "trick", want: int(0), wantErr: true},
@@ -119,9 +112,57 @@ func Test_resolve(t *testing.T) {
 		{name: "resolve failed uint16", input: uint16(0), value: "trick", want: uint16(0), wantErr: true},
 		{name: "resolve uint8", input: uint8(0), value: "5", want: uint8(5), wantErr: false},
 		{name: "resolve failed uint8", input: uint8(0), value: "trick", want: uint8(0), wantErr: true},
+		{name: "custom type assignable", input: CustomType{}, value: CustomType{5}, want: CustomType{5}, wantErr: false},
+		{name: "custom type convertible", input: CustomTypeSub{}, value: CustomType{5}, want: CustomTypeSub{5}, wantErr: false},
+		{name: "custom type based on primitive", input: net.IP{}, value: []byte{1, 2, 3, 4}, want: net.IP{}, wantErr: true},
+		{name: "failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
+	}
+	for i := range tests {
+		tt := tests[i]
+		t.Run(tt.name, func(t *testing.T) {
+			target := reflect.Indirect(reflect.New(reflect.TypeOf(tt.input)))
+			target.Set(reflect.ValueOf(tt.input))
+			err := resolver.ResolveValue(target, tt.value)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("resolve() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil {
+				require.Equal(t, tt.want, target.Interface())
+			}
+		})
+	}
+}
+
+func Test_resolve_customTypes(t *testing.T) {
+	resolver := NewDefaultValueResolver(
+		WithCustomTypes(
+			NewValueResolverTime(time.RFC3339),
+			NewValueResolverTimeDuration(),
+		),
+	)
+
+	type CustomType struct {
+		X int
+	}
+
+	type CustomTypeSub CustomType
+
+	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
+	tests := []struct {
+		name    string
+		input   interface{}
+		value   any
+		want    interface{}
+		wantErr bool
+	}{
+		{name: "resolve time", input: time.Time{}, value: "2021-10-22T11:01:00Z", want: t1, wantErr: false},
+		{name: "resolve failed time", input: time.Time{}, value: "trick", want: time.Time{}, wantErr: true},
+		{name: "resolve duration", input: time.Duration(0), value: "5s", want: 5 * time.Second, wantErr: false},
+		{name: "resolve failed duration", input: time.Duration(0), value: "trick", want: time.Duration(0), wantErr: true},
 		{name: "custom type", input: CustomType{}, value: CustomType{5}, want: CustomType{5}, wantErr: false},
 		{name: "custom type convertible", input: CustomTypeSub{}, value: CustomType{5}, want: CustomTypeSub{5}, wantErr: false},
-		{name: "failed unsupported type", input: []struct{}{}, value: "trick", want: nil, wantErr: true},
+		{name: "custom type based on primitive", input: net.IP{}, value: []byte{1, 2, 3, 4}, want: net.IP{}, wantErr: true},
 	}
 	for i := range tests {
 		tt := tests[i]
@@ -148,9 +189,35 @@ func Test_resolve_textUnmarshaller(t *testing.T) {
 	)
 
 	t1, _ := time.Parse(time.RFC3339, "2021-10-22T11:01:00Z")
+	tests := []struct {
+		name    string
+		input   interface{}
+		value   any
+		want    interface{}
+		wantErr bool
+	}{
+		{name: "resolve time", input: time.Time{}, value: "2021-10-22T11:01:00Z", want: t1, wantErr: false},
+		{name: "resolve failed time", input: time.Time{}, value: "trick", want: time.Time{}, wantErr: true},
+		{name: "custom type based on primitive", input: net.IP{}, value: "1.2.3.4", want: net.IP{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xff, 0xff, 0x1, 0x2, 0x3, 0x4}, wantErr: false},
+	}
+	for i := range tests {
+		tt := tests[i]
+		t.Run(tt.name, func(t *testing.T) {
+			target := reflect.Indirect(reflect.New(reflect.TypeOf(tt.input)))
+			target.Set(reflect.ValueOf(tt.input))
+			err := resolver.ResolveValue(target, tt.value)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("resolve() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil {
+				require.Equal(t, tt.want, target.Interface())
+			}
+		})
+	}
 
-	target := reflect.Indirect(reflect.New(reflect.TypeOf(time.Time{})))
-	err := resolver.ResolveValue(target, "2021-10-22T11:01:00Z")
-	require.NoError(t, err)
-	require.Equal(t, t1, target.Interface())
+	// target := reflect.Indirect(reflect.New(reflect.TypeOf(time.Time{})))
+	// err := resolver.ResolveValue(target, "2021-10-22T11:01:00Z")
+	// require.NoError(t, err)
+	// require.Equal(t, t1, target.Interface())
 }

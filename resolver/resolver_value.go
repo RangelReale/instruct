@@ -179,7 +179,8 @@ func (r DefaultValueResolver) resolveValue(target reflect.Value, value any) erro
 
 	// check if types are directly assignable
 
-	if target.Type().AssignableTo(sourceValue.Type()) {
+	if target.Type() == sourceValue.Type() ||
+		(target.Type().AssignableTo(sourceValue.Type()) && target.Type().Kind() != reflect.Slice) {
 		// the source can be directly assigned to the target
 		target.Set(sourceValue)
 		return nil
