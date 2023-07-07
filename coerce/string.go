@@ -40,6 +40,8 @@ func String(v interface{}) (string, error) {
 			return strconv.FormatFloat(sw, 'g', -1, 64), nil
 		case string:
 			return sw, nil
+		case []byte:
+			return string(sw), nil
 		}
 		//
 		// Beyond this point we need reflection.
