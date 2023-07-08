@@ -31,15 +31,7 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 			dataWasSet = true
 		case OperationRecurse:
 			// recurse into inner struct
-			for fieldValue.Kind() == reflect.Ptr && fieldValue.IsNil() {
-				newv := reflect.New(fieldValue.Type().Elem())
-				fieldValue.Set(newv)
-				for newv.Elem().Kind() == reflect.Ptr {
-					newv2 := reflect.New(newv.Elem().Type().Elem())
-					newv.Elem().Set(newv2)
-					newv = newv2
-				}
-			}
+			reflectEnsurePointerValue(&fieldValue)
 			if err := d.decodeStruct(sifield, input, fieldValue.Addr().Interface(), decodeOptions); err != nil {
 				return err
 			}

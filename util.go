@@ -14,11 +14,24 @@ func reflectElem(t reflect.Type) reflect.Type {
 }
 
 // reflectValueElem returns the first non-pointer type from the [reflect.Value].
-func reflectValueElem(t reflect.Value) reflect.Value {
-	for t.Kind() == reflect.Ptr {
-		t = t.Elem()
+func reflectValueElem(v reflect.Value) reflect.Value {
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
 	}
-	return t
+	return v
+}
+
+// reflectEnsurePointerValue ensures that a pointer value is initialized recursively.
+func reflectEnsurePointerValue(v *reflect.Value) {
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		newv := reflect.New(v.Type().Elem())
+		v.Set(newv)
+		for newv.Elem().Kind() == reflect.Ptr {
+			newv2 := reflect.New(newv.Elem().Type().Elem())
+			newv.Elem().Set(newv2)
+			newv = newv2
+		}
+	}
 }
 
 func structFieldName(structTyp reflect.Type, fieldName string) string {
