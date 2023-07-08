@@ -40,7 +40,7 @@ func (d *Decoder[IT, DC]) decodeInputFromStructInfo(input IT, si *structInfo, da
 		}
 	}
 
-	err := d.decodeStruct(si, input, data, decodeOptions)
+	err := d.decodeStruct(si, input, reflect.ValueOf(data), decodeOptions)
 	if err != nil {
 		return err
 	}

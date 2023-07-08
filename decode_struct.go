@@ -8,8 +8,8 @@ import (
 )
 
 // decodeStruct uses the structInfo to decode the input to the struct.
-func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{}, decodeOptions DecodeOptions[IT, DC]) error {
-	dataValue := reflectValueElem(reflect.ValueOf(data))
+func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, dataValue reflect.Value, decodeOptions DecodeOptions[IT, DC]) error {
+	dataValue = reflectValueElem(dataValue)
 	if err := si.checkSameType(dataValue.Type()); err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 		case OperationRecurse:
 			// recurse into inner struct
 			reflectEnsurePointerValue(&fieldValue)
-			if err := d.decodeStruct(sifield, input, fieldValue.Addr().Interface(), decodeOptions); err != nil {
+			if err := d.decodeStruct(sifield, input, fieldValue, decodeOptions); err != nil {
 				return err
 			}
 			dataWasSet = true
