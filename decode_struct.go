@@ -22,7 +22,7 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 	}
 
 	for _, sifield := range si.fields {
-		field := dataValue.FieldByIndex(sifield.field.Index)
+		fieldValue := dataValue.FieldByIndex(sifield.field.Index)
 
 		dataWasSet := false
 
@@ -31,14 +31,23 @@ func (d *Decoder[IT, DC]) decodeStruct(si *structInfo, input IT, data interface{
 			dataWasSet = true
 		case OperationRecurse:
 			// recurse into inner struct
-			if err := d.decodeStruct(sifield, input, field.Addr().Interface(), decodeOptions); err != nil {
+			for fieldValue.Kind() == reflect.Ptr && fieldValue.IsNil() {
+				newv := reflect.New(fieldValue.Type().Elem())
+				fieldValue.Set(newv)
+				for newv.Elem().Kind() == reflect.Ptr {
+					newv2 := reflect.New(newv.Elem().Type().Elem())
+					newv.Elem().Set(newv2)
+					newv = newv2
+				}
+			}
+			if err := d.decodeStruct(sifield, input, fieldValue.Addr().Interface(), decodeOptions); err != nil {
 				return err
 			}
 			dataWasSet = true
 		default:
 			var err error
 			// execute operation (query, header, etc.)
-			dataWasSet, err = d.executeOperation(field, sifield, input, decodeOptions)
+			dataWasSet, err = d.executeOperation(fieldValue, sifield, input, decodeOptions)
 			if err != nil {
 				return err
 			}

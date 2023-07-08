@@ -106,7 +106,7 @@ func buildStructInfoItem[IT any, DC DecodeContext](ctx *buildContext, si *struct
 			sifield = buildCloneStructInfo(ctx, sifield, true)
 		} else {
 			sifield = &structInfo{
-				typ:   field.Type,
+				typ:   reflectElem(field.Type),
 				field: field,
 				path:  curlevel.Path(),
 			}
