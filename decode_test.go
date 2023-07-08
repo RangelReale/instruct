@@ -155,7 +155,8 @@ func TestDecodePointerField(t *testing.T) {
 	type DataType struct {
 		Val    *string  `instruct:"header"`
 		S      *SData   `instruct:"recurse"`
-		S2     ***SData `instruct:"recurse"`
+		S2     **SData  `instruct:"recurse"`
+		S3     ***SData `instruct:"recurse"`
 		IntVal *int32   `instruct:"header"`
 	}
 
@@ -176,6 +177,10 @@ func TestDecodePointerField(t *testing.T) {
 	require.Equal(t, int32(92), *data.IntVal)
 	require.Equal(t, "x1", data.S.Val)
 	require.Equal(t, int32(92), *data.S.IntVal)
+	require.Equal(t, "x1", (*data.S2).Val)
+	require.Equal(t, int32(92), *(*data.S2).IntVal)
+	require.Equal(t, "x1", (**data.S3).Val)
+	require.Equal(t, int32(92), *(**data.S3).IntVal)
 }
 
 func TestDecodePointerPointerField(t *testing.T) {
