@@ -1,7 +1,9 @@
 package instruct
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 )
@@ -43,6 +45,35 @@ func (s *structInfo) fieldByName(name string) *structInfo {
 		}
 	}
 	return nil
+}
+
+func (s *structInfo) dump(w io.Writer) error {
+	return s.dumpIndent("", w)
+}
+
+func (s *structInfo) dumpIndent(indent string, w io.Writer) error {
+	var ferr error
+	var err error
+	_, err = fmt.Fprintf(w, "%s- ", indent)
+	ferr = errors.Join(ferr, err)
+	name := "{ROOT}"
+	if s.field.Type != nil {
+		name = s.field.Name
+	}
+	_, err = fmt.Fprintf(w, "%s [/%s] (type: %s, kind: %s) ", name, strings.Join(s.path, "/"), s.typ.Name(), s.typ.Kind().String())
+	ferr = errors.Join(ferr, err)
+	if s.field.Type != nil {
+		_, err = fmt.Fprintf(w, "[field type: %s, kind: %s] ", s.field.Type.String(), s.field.Type.Kind().String())
+		ferr = errors.Join(ferr, err)
+		// _, err = fmt.Fprintf(w, "[path: '%s']", strings.Join(s.path, "/"))
+		// ferr = errors.Join(ferr, err)
+	}
+	_, err = fmt.Fprintf(w, "\n")
+	ferr = errors.Join(ferr, err)
+	for _, field := range s.fields {
+		ferr = errors.Join(ferr, field.dumpIndent(indent+"\t", w))
+	}
+	return err
 }
 
 // structInfoWithMapTags overrides a structInfo with a MapTags. This creates a clone of all the objects and don't
