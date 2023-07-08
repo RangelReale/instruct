@@ -148,8 +148,9 @@ func TestDecodeNoContext(t *testing.T) {
 
 func TestDecodePointerField(t *testing.T) {
 	type SData struct {
-		Val    string `instruct:"header"`
-		IntVal *int32 `instruct:"header"`
+		Val     string  `instruct:"header"`
+		IntVal  *int32  `instruct:"header"`
+		IntVal2 **int64 `instruct:"header"`
 	}
 
 	type DataType struct {
@@ -163,6 +164,7 @@ func TestDecodePointerField(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Set("val", "x1")
 	r.Header.Set("intval", "92")
+	r.Header.Set("intval2", "799")
 
 	var data DataType
 
@@ -177,10 +179,13 @@ func TestDecodePointerField(t *testing.T) {
 	require.Equal(t, int32(92), *data.IntVal)
 	require.Equal(t, "x1", data.S.Val)
 	require.Equal(t, int32(92), *data.S.IntVal)
+	require.Equal(t, int64(799), **data.S.IntVal2)
 	require.Equal(t, "x1", (*data.S2).Val)
 	require.Equal(t, int32(92), *(*data.S2).IntVal)
+	require.Equal(t, int64(799), **(*data.S2).IntVal2)
 	require.Equal(t, "x1", (**data.S3).Val)
 	require.Equal(t, int32(92), *(**data.S3).IntVal)
+	require.Equal(t, int64(799), **(**data.S3).IntVal2)
 }
 
 func TestDecodePointerPointerField(t *testing.T) {
