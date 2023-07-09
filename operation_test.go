@@ -107,16 +107,12 @@ const (
 type TestDecodeOperationQuery struct {
 }
 
-func (d *TestDecodeOperationQuery) Decode(ctx TestDecodeContext, r *http.Request, field reflect.Value,
-	typ reflect.Type, tag *Tag) (bool, any, error) {
+func (d *TestDecodeOperationQuery) Decode(ctx TestDecodeContext, r *http.Request, isList bool, field reflect.Value, tag *Tag) (bool, any, error) {
 	if !r.URL.Query().Has(tag.Name) {
 		return false, nil, nil
 	}
 
-	// only check slices/arrays for primitive types, otherwise "type UUID [16]byte" would be checked as an array
-	isPrimitive := field.Type().PkgPath() == ""
-
-	if isPrimitive && (field.Kind() == reflect.Slice || field.Kind() == reflect.Array) {
+	if isList {
 		explode, err := tag.Options.BoolValue("explode", true)
 		if err != nil {
 			return false, nil, err
@@ -158,18 +154,15 @@ func (d *TestDecodeOperationQuery) Validate(ctx TestDecodeContext, r *http.Reque
 type TestDecodeOperationHeader struct {
 }
 
-func (d *TestDecodeOperationHeader) Decode(ctx TestDecodeContext, r *http.Request, field reflect.Value,
-	typ reflect.Type, tag *Tag) (bool, any, error) {
+func (d *TestDecodeOperationHeader) Decode(ctx TestDecodeContext, r *http.Request, isList bool, field reflect.Value,
+	tag *Tag) (bool, any, error) {
 	values := r.Header.Values(tag.Name)
 
 	if len(values) == 0 {
 		return false, nil, nil
 	}
 
-	// only check slices/arrays for primitive types, otherwise "type UUID [16]byte" would be checked as an array
-	isPrimitive := field.Type().PkgPath() == ""
-
-	if isPrimitive && (field.Kind() == reflect.Slice || field.Kind() == reflect.Array) {
+	if isList {
 		return true, values, nil
 	}
 	return true, values[0], nil
@@ -178,10 +171,10 @@ func (d *TestDecodeOperationHeader) Decode(ctx TestDecodeContext, r *http.Reques
 type TestDecodeOperationBody struct {
 }
 
-func (d *TestDecodeOperationBody) Decode(ctx TestDecodeContext, r *http.Request, field reflect.Value,
-	typ reflect.Type, tag *Tag) (bool, any, error) {
+func (d *TestDecodeOperationBody) Decode(ctx TestDecodeContext, r *http.Request, isList bool, field reflect.Value,
+	tag *Tag) (bool, any, error) {
 	if ctx.IsBodyDecoded() {
-		return false, nil, fmt.Errorf("body was already decoded for type '%s'", typ.String())
+		return false, nil, fmt.Errorf("body was already decoded")
 	}
 	fv := field
 	if fv.CanAddr() {
@@ -256,8 +249,8 @@ type TestDecodeOperationManual struct {
 	Values map[string]any
 }
 
-func (d *TestDecodeOperationManual) Decode(ctx TestDecodeContext, r *http.Request, field reflect.Value,
-	typ reflect.Type, tag *Tag) (bool, any, error) {
+func (d *TestDecodeOperationManual) Decode(ctx TestDecodeContext, r *http.Request, isList bool, field reflect.Value,
+	tag *Tag) (bool, any, error) {
 	if v, ok := d.Values[tag.Name]; ok {
 		return true, v, nil
 	}

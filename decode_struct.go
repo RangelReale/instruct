@@ -101,8 +101,12 @@ func (d *Decoder[IT, DC]) executeOperation(field reflect.Value, sifield *structI
 		return false, fmt.Errorf("unknown operation '%s' for field %s", sifield.tag.Operation, sifield.field.Name)
 	}
 
+	// only check slices/arrays for primitive types, otherwise "type UUID [16]byte" would be checked as an array
+	isPrimitive := field.Type().PkgPath() == ""
+	isList := isPrimitive && (field.Kind() == reflect.Slice || field.Kind() == reflect.Array)
+
 	// call the decoder interface.
-	dataWasSet, value, err := operation.Decode(decodeOptions.Ctx, input, field, sifield.field.Type, sifield.tag)
+	dataWasSet, value, err := operation.Decode(decodeOptions.Ctx, input, isList, field, sifield.tag)
 	if err != nil {
 		return false, err
 	}

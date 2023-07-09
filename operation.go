@@ -30,7 +30,11 @@ func soOptionValue(soOption string) string {
 
 // DecodeOperation is the interface for the input-to-struct decoders.
 type DecodeOperation[IT any, DC DecodeContext] interface {
-	Decode(ctx DC, input IT, field reflect.Value, typ reflect.Type, tag *Tag) (found bool, value any, err error)
+	// Decode decodes a value for a field. If you have a value easily available, return it in "value" and
+	// ignore the "field" parameter (don't try any kind of conversion). Otherwise, set the "field" value
+	// directly and return IgnoreDecodeValue in "value", for example, when decoding a JSON HTTP body
+	// into a struct field.
+	Decode(ctx DC, input IT, isList bool, field reflect.Value, tag *Tag) (found bool, value any, err error)
 }
 
 // DecodeOperationValidate allows a DecodeOperation to do a final validation.
