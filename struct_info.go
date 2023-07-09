@@ -10,11 +10,11 @@ import (
 
 // structInfo caches struct field configurations.
 type structInfo struct {
-	typ    reflect.Type
-	field  reflect.StructField
-	tag    *Tag
-	path   []string
-	fields []*structInfo
+	typ    reflect.Type        // non-pointer final type (from "field.Type()")
+	field  reflect.StructField // field, empty on root struct
+	tag    *Tag                // tag
+	path   []string            // complete field path including itself, using the unmodified struct field name
+	fields []*structInfo       // child fields
 }
 
 func (s *structInfo) fullFieldName() string {
