@@ -34,7 +34,7 @@ type DecodeOperation[IT any, DC DecodeContext] interface {
 	// ignore the "field" parameter (don't try any kind of conversion). Otherwise, set the "field" value
 	// directly and return IgnoreDecodeValue in "value", for example, when decoding a JSON HTTP body
 	// into a struct field.
-	// If isList is true, try to return an array/slice if possible (but it is not a requirement).
+	// If isList is true, try to return an array/slice if available.
 	Decode(ctx DC, input IT, isList bool, field reflect.Value, tag *Tag) (found bool, value any, err error)
 }
 
