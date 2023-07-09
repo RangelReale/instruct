@@ -163,7 +163,7 @@ func (d *TestDecodeOperationHeader) Decode(ctx TestDecodeContext, r *http.Reques
 		return false, nil, nil
 	}
 
-	if field.Kind() == reflect.Slice {
+	if field.Kind() == reflect.Slice || field.Kind() == reflect.Array {
 		return true, values, nil
 	}
 	return true, values[0], nil

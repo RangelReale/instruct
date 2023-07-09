@@ -206,6 +206,41 @@ func TestDecodePointerPointerField(t *testing.T) {
 	require.Equal(t, "x1", **data.Val)
 }
 
+func TestDecodeArrayField(t *testing.T) {
+	type DataType struct {
+		Val [3]int32 `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, [3]int32{12, 13, 15}, data.Val)
+}
+
+func TestDecodeArrayFieldDifferentLength(t *testing.T) {
+	type DataType struct {
+		Val [5]int32 `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
+}
+
 func TestDecodeSliceField(t *testing.T) {
 	type DataType struct {
 		Val []int32 `instruct:"header"`
@@ -245,6 +280,42 @@ func TestDecodeSlicePointerField(t *testing.T) {
 	v3 := 15
 
 	require.Equal(t, []*int{&v1, &v2, &v3}, data.Val)
+}
+
+func TestDecodePointerToSliceField(t *testing.T) {
+	// pointer to slice is not supported (this just tests it doesn't crash)
+	type DataType struct {
+		Val *[]int32 `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
+}
+
+func TestDecodeMultiSliceField(t *testing.T) {
+	// multidimensional slice is not supported (this just tests it doesn't crash)
+	type DataType struct {
+		Val [][]int32 `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", "12")
+	r.Header.Add("val", "13")
+	r.Header.Add("val", "15")
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
 }
 
 func TestDecodeRequiredError(t *testing.T) {
@@ -556,6 +627,38 @@ func TestDecodePointerValue(t *testing.T) {
 
 	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
 		"val": &mval,
+	}))
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+}
+
+func TestDecodeArrayValue(t *testing.T) {
+	type DataType struct {
+		Val []int32 `instruct:"manual"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
+		"val": [2]string{"45", "60"},
+	}))
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+}
+
+func TestDecodeArrayToArrayValue(t *testing.T) {
+	type DataType struct {
+		Val [2]int32 `instruct:"manual"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptionsWithManual(map[string]any{
+		"val": [2]string{"45", "60"},
 	}))
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.NoError(t, err)

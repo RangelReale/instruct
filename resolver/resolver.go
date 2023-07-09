@@ -40,7 +40,7 @@ func (r Resolver) Resolve(target reflect.Value, value any) error {
 
 		sourceValue := reflect.ValueOf(value)
 
-		if sourceValue.Type().Kind() != reflect.Slice {
+		if sourceValue.Type().Kind() != reflect.Slice && sourceValue.Type().Kind() != reflect.Array {
 			return fmt.Errorf("expected an array to coerce an array into")
 		}
 		elemType := target.Type().Elem()
@@ -53,6 +53,29 @@ func (r Resolver) Resolve(target reflect.Value, value any) error {
 			targetSliceValue = reflect.Append(targetSliceValue, targetValue.Elem())
 		}
 		target.Set(targetSliceValue)
+		return nil
+	} else if target.Kind() == reflect.Array {
+		if !target.CanSet() {
+			return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
+		}
+
+		sourceValue := reflect.ValueOf(value)
+
+		if sourceValue.Type().Kind() != reflect.Slice && sourceValue.Type().Kind() != reflect.Array {
+			return fmt.Errorf("expected an array to coerce an array into")
+		}
+		if sourceValue.Len() != target.Len() {
+			return fmt.Errorf("arrays lengths doesn't match")
+		}
+		elemType := target.Type().Elem()
+
+		for i := 0; i < sourceValue.Len(); i++ {
+			targetValue := reflect.New(elemType)
+			if err := r.Resolve(targetValue.Elem(), sourceValue.Index(i).Interface()); err != nil {
+				return err
+			}
+			target.Index(i).Set(targetValue.Elem())
+		}
 		return nil
 	} else if target.Kind() == reflect.Pointer {
 		ptrValue := reflect.New(target.Type().Elem())
