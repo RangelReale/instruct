@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/RangelReale/instruct/resolver"
 	"github.com/RangelReale/instruct/types"
 	"github.com/stretchr/testify/require"
 )
@@ -222,6 +223,62 @@ func TestDecodeArrayField(t *testing.T) {
 	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
 	require.NoError(t, err)
 	require.Equal(t, [3]int32{12, 13, 15}, data.Val)
+}
+
+const (
+	UUIDSample = "8ff91b26-c93e-426c-8498-77e91c836434"
+)
+
+var (
+	UUIDSampleValue = UUID([16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
+)
+
+// simulate UUID from https://github.com/google/uuid
+type UUID [16]byte
+
+func (uuid UUID) String() string {
+	return UUIDSample
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (uuid *UUID) UnmarshalText(data []byte) error {
+	*uuid = UUIDSampleValue
+	return nil
+}
+
+func TestDecodeArrayLikeFieldError(t *testing.T) {
+	// must not treat it like an array
+	type DataType struct {
+		Val UUID `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", UUIDSample)
+
+	var data DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.Error(t, err)
+}
+
+func TestDecodeArrayLikeFieldTextUnmarshal(t *testing.T) {
+	type DataType struct {
+		Val UUID `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Add("val", UUIDSample)
+
+	var data DataType
+
+	defOpt := GetTestDecoderOptions()
+	defOpt.Resolver = resolver.NewResolver(resolver.WithValueResolver(resolver.NewDefaultValueResolver(
+		resolver.WithCustomTypeReflect(resolver.NewValueResolverReflectTextUnmarshaler()))))
+	dec := NewDecoder[*http.Request, TestDecodeContext](defOpt)
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+	require.Equal(t, UUIDSampleValue, data.Val)
 }
 
 func TestDecodeArrayFieldDifferentLength(t *testing.T) {

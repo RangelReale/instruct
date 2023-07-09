@@ -33,7 +33,10 @@ func WithValueResolver(valueResolver ValueResolver) Option {
 }
 
 func (r Resolver) Resolve(target reflect.Value, value any) error {
-	if target.Kind() == reflect.Slice {
+	// only check slices/arrays for primitive types, otherwise "type UUID [16]byte" would be check as an array
+	isPrimitive := target.Type().PkgPath() == ""
+
+	if isPrimitive && target.Kind() == reflect.Slice {
 		if !target.CanSet() {
 			return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
 		}
@@ -54,7 +57,7 @@ func (r Resolver) Resolve(target reflect.Value, value any) error {
 		}
 		target.Set(targetSliceValue)
 		return nil
-	} else if target.Kind() == reflect.Array {
+	} else if isPrimitive && target.Kind() == reflect.Array {
 		if !target.CanSet() {
 			return fmt.Errorf("cannot set '%s' ", target.Type().Kind())
 		}
