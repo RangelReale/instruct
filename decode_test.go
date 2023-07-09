@@ -114,6 +114,21 @@ func TestDecodeUsingCache(t *testing.T) {
 	require.Equal(t, "x2", data.Val)
 }
 
+func TestDecodePointer(t *testing.T) {
+	type DataType struct {
+		Val string `instruct:"header"`
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("val", "x1")
+
+	var data *DataType
+
+	dec := NewDecoder[*http.Request, TestDecodeContext](GetTestDecoderOptions())
+	err := dec.Decode(r, &data, GetTestDecoderDecodeOptions(nil))
+	require.NoError(t, err)
+}
+
 func TestDecodeNonPointer(t *testing.T) {
 	type DataType struct {
 		Val string `instruct:"header"`

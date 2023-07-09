@@ -23,14 +23,16 @@ func reflectValueElem(v reflect.Value) reflect.Value {
 
 // reflectEnsurePointerValue ensures that a pointer value is initialized recursively.
 func reflectEnsurePointerValue(v *reflect.Value) {
-	if v.Kind() == reflect.Ptr && v.IsNil() {
-		newv := reflect.New(v.Type().Elem())
-		v.Set(newv)
-		for newv.Elem().Kind() == reflect.Ptr {
-			newv2 := reflect.New(newv.Elem().Type().Elem())
-			newv.Elem().Set(newv2)
-			newv = newv2
+	for v.Kind() == reflect.Ptr {
+		var newv reflect.Value
+		if v.IsNil() {
+			newv = reflect.New(v.Type().Elem())
+			v.Set(newv)
+			newv = newv.Elem()
+		} else {
+			newv = v.Elem()
 		}
+		v = &newv
 	}
 }
 
