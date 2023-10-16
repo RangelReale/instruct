@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/RangelReale/instruct/coerce"
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/coerce"
+	"github.com/rrgmc/instruct/types"
 )
 
 // ValueResolver resolves simple types for a Resolver.

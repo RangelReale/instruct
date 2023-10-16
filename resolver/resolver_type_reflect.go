@@ -4,7 +4,7 @@ import (
 	"encoding"
 	"reflect"
 
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/types"
 )
 
 var (

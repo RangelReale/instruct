@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/types"
 	"golang.org/x/exp/maps"
 )
 

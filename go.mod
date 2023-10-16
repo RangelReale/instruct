@@ -1,4 +1,4 @@
-module github.com/RangelReale/instruct
+module github.com/rrgmc/instruct
 
 go 1.20
 

@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/RangelReale/instruct/coerce"
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/coerce"
+	"github.com/rrgmc/instruct/types"
 )
 
 // ValueResolverTime resolves time.Time values.

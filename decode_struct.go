@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/types"
 )
 
 // decodeStruct uses the structInfo to decode the input to the struct.

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RangelReale/instruct/resolver"
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/resolver"
+	"github.com/rrgmc/instruct/types"
 	"github.com/stretchr/testify/require"
 )
 

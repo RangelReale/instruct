@@ -1,7 +1,7 @@
 package options
 
 import (
-	"github.com/RangelReale/instruct"
+	"github.com/rrgmc/instruct"
 )
 
 // DefaultOption + TypeDefaultOption

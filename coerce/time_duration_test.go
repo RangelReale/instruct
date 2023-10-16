@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/RangelReale/instruct/coerce"
+	"github.com/rrgmc/instruct/coerce"
 	"github.com/stretchr/testify/assert"
 )
 

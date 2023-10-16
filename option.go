@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/RangelReale/instruct/resolver"
+	"github.com/rrgmc/instruct/resolver"
 )
 
 // FieldNameMapper maps a struct field name to the target field name.

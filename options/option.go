@@ -1,6 +1,6 @@
 package options
 
-import "github.com/RangelReale/instruct"
+import "github.com/rrgmc/instruct"
 
 // AnyOption states that the option can be used in any instruct.Decoder function.
 type AnyOption[IT any, DC instruct.DecodeContext] interface {

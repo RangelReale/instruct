@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/RangelReale/instruct/coerce"
+	"github.com/rrgmc/instruct/coerce"
 )
 
 var (

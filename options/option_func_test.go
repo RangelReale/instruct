@@ -3,7 +3,7 @@ package options
 import (
 	"testing"
 
-	"github.com/RangelReale/instruct"
+	"github.com/rrgmc/instruct"
 	"github.com/stretchr/testify/require"
 )
 

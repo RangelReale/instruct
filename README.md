@@ -1,11 +1,11 @@
 # InStruct - Library for creating input-to-struct conversions
-[![GoDoc](https://godoc.org/github.com/RangelReale/instruct?status.png)](https://godoc.org/github.com/RangelReale/instruct)
+[![GoDoc](https://godoc.org/github.com/rrgmc/instruct?status.png)](https://godoc.org/github.com/rrgmc/instruct)
 
 This is meant to be wrapped in another library, not to be used directly. See some of the library users for examples.
 
 # Used by
 
-- InReq: [https://github.com/RangelReale/inreq](https://github.com/RangelReale/inreq)
+- InReq: [https://github.com/rrgmc/inreq](https://github.com/rrgmc/inreq)
 
 # Licenses
 

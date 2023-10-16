@@ -1,2 +1,2 @@
-// Package options provides an optional standard implementation of [github.com/RangelReale/instruct] options.
+// Package options provides an optional standard implementation of [github.com/rrgmc/instruct] options.
 package options

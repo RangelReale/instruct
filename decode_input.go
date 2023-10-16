@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/RangelReale/instruct/types"
+	"github.com/rrgmc/instruct/types"
 )
 
 func (d *Decoder[IT, DC]) decodeInput(input IT, data any, decodeOptions DecodeOptions[IT, DC]) error {
